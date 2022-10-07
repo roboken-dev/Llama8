@@ -149,23 +149,15 @@ public class Teleop extends LinearOpMode {
             }
 
 
-            if (G2leftTrigger > 0) {
-                robot.spinner.setPower(0.7 * G2leftTrigger);
-            } else if (G2rightTrigger > 0) {
-                robot.spinner.setPower(-0.7 * G2rightTrigger);
-            } else {
-                robot.spinner.setPower(0);
-            }
-
-            telemetry.addData("Distance Sensor", robot.distance.getDistance(DistanceUnit.CM));
-            telemetry.addData("Z absolute", robot.getCurrentZ());
-            telemetry.addData("encoders",
-                    "FL=%d RL=%d FR=%d RR=%d",
-                    robot.motorFrontLeft.getCurrentPosition(),
-                    robot.motorRearLeft.getCurrentPosition(),
-                    robot.motorFrontRight.getCurrentPosition(),
-                    robot.motorRearRight.getCurrentPosition());
-            telemetry.update();
+         //   telemetry.addData("Distance Sensor", robot.distance.getDistance(DistanceUnit.CM));
+         //   telemetry.addData("Z absolute", robot.getCurrentZ());
+         //   telemetry.addData("encoders",
+                //    "FL=%d RL=%d FR=%d RR=%d",
+                //    robot.motorFrontLeft.getCurrentPosition(),
+                 //   robot.motorRearLeft.getCurrentPosition(),
+                  //  robot.motorFrontRight.getCurrentPosition(),
+                   // robot.motorRearRight.getCurrentPosition());
+          //  telemetry.update();
         }
     }
 }

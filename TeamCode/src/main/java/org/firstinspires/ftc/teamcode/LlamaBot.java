@@ -50,8 +50,7 @@ public class LlamaBot
     public DcMotor motorRearRight; // motor 4
     public Servo claw;
     public DcMotor arm;
-    public DcMotor spinner;
-    public DistanceSensor distance;
+   // public DistanceSensor distance;
 
 
     private ElapsedTime     runtime = new ElapsedTime();
@@ -90,8 +89,7 @@ public class LlamaBot
         this.hwMap = hwMap;
         arm = hwMap.dcMotor.get("arm");
         claw = hwMap.servo.get("claw");
-        spinner = hwMap.dcMotor.get("spinner");
-        distance = hwMap.get(DistanceSensor.class, "distance");
+   //     distance = hwMap.get(DistanceSensor.class, "distance");
 
         // reset to default
         initMotors();
@@ -474,21 +472,6 @@ public class LlamaBot
     }
 
 
-     public void spin(boolean clockwise, long time) throws InterruptedException {
-         double power;
-         if (clockwise) {
-             power = 0.4;
-         } else {
-             power = -0.4;
-         }
-         spinner.setPower(power);
-         Thread.sleep(time);
-         spinner.setPower(0);
-     }
-
-
-
-
 
 
 
@@ -613,103 +596,6 @@ public class LlamaBot
         resetAngle();
 
     }
-/*
-    public void baseDuckHubParkA(boolean redTeam) throws InterruptedException {
-        ///19 points with storage unit - 26 points with warehouse
-        int direction = 1;
-
-        if (!redTeam) {
-            direction = -1;
-        }
-
-        claw.setPosition(1.0);
-        Thread.sleep(700);
-        moveArmByTime(1, 2000);
-        strafeLeftByTime(direction * DRIVE_SPEED, 300);
-        driveForwardByTime(-DRIVE_SPEED, 500);
-        spin(redTeam, 3800);
-        driveForwardByTime(DRIVE_SPEED * 2, 1500);
-        turnByTime(redTeam, DRIVE_SPEED, 2000);
-        moveArmByTime(1, 2000);
-        driveForwardByTime(DRIVE_SPEED * 2, 1200);
-        moveArmByTime(-0.3,   350);
-        Thread.sleep(100);
-        claw.setPosition(0.0);
-        moveArmByTime(0.5, 350);
-        driveForwardByTime(-DRIVE_SPEED * 2, 1300);
-        if (true) {
-            strafeRightByTime(direction * DRIVE_SPEED, 1000);
-        }
-        else {
-            strafeRightByTime(direction * DRIVE_SPEED, 500);
-            driveForwardByTime(DRIVE_SPEED * 2, 4500);
-        }
-
-    }
-
-    public void baseDuckHubParkB(boolean redTeam) throws InterruptedException {
-        ///19 points with storage unit - 26 points with warehouse
-        int direction = 1;
-
-        if (!redTeam) {
-            direction = -1;
-        }
-
-        claw.setPosition(1.0);
-        Thread.sleep(700);
-        moveArmByTime(1, 2000);
-        strafeLeftByTime(direction * DRIVE_SPEED * .5, 500);
-        driveForwardByTime(-DRIVE_SPEED, 500);
-        spin(redTeam, 3800);
-        driveForwardByTime(DRIVE_SPEED * 2, 1500);
-        turnByTime(redTeam, DRIVE_SPEED, 2000);
-        moveArmByTime(1, 2000);
-        driveForwardByTime(DRIVE_SPEED * 2, 1200);
-        moveArmByTime(-0.3,   350);
-        Thread.sleep(100);
-        claw.setPosition(0.0);
-        moveArmByTime(0.5, 350);
-        driveForwardByTime(-DRIVE_SPEED * 2, 1300);
-        strafeLeftByTime(direction * DRIVE_SPEED, 1000);
-        driveForwardByTime(DRIVE_SPEED, 4500);
-        turnRightByTime(DRIVE_SPEED, 1300);
-        driveForwardByTime(DRIVE_SPEED * 2,500);
-
-
-
-    }
-
-    public void baseHubWarehouse(boolean redTeam) throws InterruptedException {
-        // 16 points
-        claw.setPosition(1.0);
-        Thread.sleep(500);
-        moveArmByTime(1, 2000);
-        arm.setPower(0.2);
-        driveForwardByTime(DRIVE_SPEED, 1000);
-        turnByTime(!redTeam, DRIVE_SPEED, 750);
-        driveForwardByTime(DRIVE_SPEED * 1.5, 1200);
-        moveArmByTime(-0.2, 400);
-        claw.setPosition(0.0);
-        Thread.sleep(250);
-        moveArmByTime(1, 2000);
-        arm.setPower(0.2);
-        driveForwardByTime(-DRIVE_SPEED, 1000);
-        turnByTime(redTeam, DRIVE_SPEED, 2800);
-        driveForwardByTime(3 * DRIVE_SPEED, 1500);
-    }
-
-    public void baseWarehousePark(boolean redTeam) throws InterruptedException {
-        // 10 points
-        claw.setPosition(1.0);
-        Thread.sleep(500);
-        moveArmByTime(1, 2000);
-        driveForwardByTime(DRIVE_SPEED, 2000);
-        moveArmByTime(1,2000);
-  //      turnByTime(redTeam, DRIVE_SPEED, 1850);
-        driveForwardByTime(3 * DRIVE_SPEED, 1800);
-    }
-
- */
 }
 
 
