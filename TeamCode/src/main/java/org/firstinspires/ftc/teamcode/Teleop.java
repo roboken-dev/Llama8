@@ -55,7 +55,10 @@ public class Teleop extends LinearOpMode {
 
         robot.arm.setTargetPosition(0);
         robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-     //   robot.clawInit(robot.CLAW_CLOSE);
+        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+      //  robot.clawInit(robot.CLAW_CLOSE);
         while (opModeIsActive()) {
 
             double G1rightStickY = gamepad1.right_stick_y;
@@ -74,8 +77,6 @@ public class Teleop extends LinearOpMode {
                 if (robot.arm.getTargetPosition() != robot.ARM_TOP) {
                     robot.arm.setTargetPosition(robot.ARM_TOP);
                 }
-                // } else if (armSpeed == 0) {
-                //   robot.arm.setTargetPosition(robot.arm.getCurrentPosition());
             }
 
             if (gamepad2.x) {
@@ -94,13 +95,16 @@ public class Teleop extends LinearOpMode {
             }
 
             telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+
             if (armSpeed == 0) {
-                armSpeed = 0.01;
+                robot.arm.setPower(0);
+                robot.arm.setTargetPosition(robot.arm.getCurrentPosition());
+                robot.arm.setPower(0.1);
+
+            } else {
+                robot.arm.setPower(armSpeed);
             }
 
-            telemetry.addData("Arm speed", armSpeed);
-
-            robot.arm.setPower(armSpeed);
 
             //Driver 1 wheel speed control
             if (gamepad1.dpad_up) {
@@ -157,7 +161,7 @@ public class Teleop extends LinearOpMode {
 
             telemetry.update();
         }
-   }
+    }
 }
 
 
