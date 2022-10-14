@@ -36,13 +36,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class LlamaBot
 {
     static final int ARM_POSITION_FLOOR = 0;
-    static final int ARM_POSITION_L1_DROP = 420;
-    static final int ARM_POSITION_L1_DRIVE = 510;
-    static final int ARM_POSITION_L2_DROP = 1210;
-    static final int ARM_POSITION_L2_DRIVE = 1310;
-    static final int ARM_POSITION_L3_DROP = 2090;
-    static final int ARM_POSITION_L3_DRIVE = 2240;
-    static final int ARM_POSITION_TOP = 2500;
+  //  static final int ARM_POSITION_L1_DROP = 420;
+//    static final int ARM_POSITION_L1_DRIVE = 510;
+  //  static final int ARM_POSITION_L2_DROP = 1210;
+   // static final int ARM_POSITION_L2_DRIVE = 1310;
+  //  static final int ARM_POSITION_L3_DROP = 2090;
+  //  static final int ARM_POSITION_L3_DRIVE = 2240;
+    static final int ARM_POSITION_TOP = 3050;
     static final int ELEMENT_THRESHHOLD = 25;
     public DcMotor motorFrontLeft;  // motor1
     public DcMotor motorRearLeft;  // motor 2
@@ -459,7 +459,7 @@ public class LlamaBot
 
     public void armInit() {
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm.setDirection(DcMotorSimple.Direction.REVERSE);
+       // arm.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void armMoveToPosition(int position, LinearOpMode opmode) {

@@ -55,7 +55,7 @@ public class Teleop extends LinearOpMode {
 
         robot.arm.setTargetPosition(0);
         robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.clawInit(robot.CLAW_CLOSE);
+     //   robot.clawInit(robot.CLAW_CLOSE);
         while (opModeIsActive()) {
 
             double G1rightStickY = gamepad1.right_stick_y;
@@ -74,6 +74,8 @@ public class Teleop extends LinearOpMode {
                 if (robot.arm.getTargetPosition() != robot.ARM_TOP) {
                     robot.arm.setTargetPosition(robot.ARM_TOP);
                 }
+                // } else if (armSpeed == 0) {
+                //   robot.arm.setTargetPosition(robot.arm.getCurrentPosition());
             }
 
             if (gamepad2.x) {
@@ -92,6 +94,11 @@ public class Teleop extends LinearOpMode {
             }
 
             telemetry.addData("Arm Position", robot.arm.getCurrentPosition());
+            if (armSpeed == 0) {
+                armSpeed = 0.01;
+            }
+
+            telemetry.addData("Arm speed", armSpeed);
 
             robot.arm.setPower(armSpeed);
 
@@ -148,18 +155,9 @@ public class Teleop extends LinearOpMode {
                 robot.openClawStep();
             }
 
-
-         //   telemetry.addData("Distance Sensor", robot.distance.getDistance(DistanceUnit.CM));
-         //   telemetry.addData("Z absolute", robot.getCurrentZ());
-         //   telemetry.addData("encoders",
-                //    "FL=%d RL=%d FR=%d RR=%d",
-                //    robot.motorFrontLeft.getCurrentPosition(),
-                 //   robot.motorRearLeft.getCurrentPosition(),
-                  //  robot.motorFrontRight.getCurrentPosition(),
-                   // robot.motorRearRight.getCurrentPosition());
-          //  telemetry.update();
+            telemetry.update();
         }
-    }
+   }
 }
 
 
