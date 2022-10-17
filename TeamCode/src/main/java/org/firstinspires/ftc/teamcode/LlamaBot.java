@@ -36,12 +36,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class LlamaBot
 {
     static final int ARM_POSITION_FLOOR = 0;
-  //  static final int ARM_POSITION_L1_DROP = 420;
-//    static final int ARM_POSITION_L1_DRIVE = 510;
-  //  static final int ARM_POSITION_L2_DROP = 1210;
-   // static final int ARM_POSITION_L2_DRIVE = 1310;
-  //  static final int ARM_POSITION_L3_DROP = 2090;
-  //  static final int ARM_POSITION_L3_DRIVE = 2240;
+    static final int ARM_POSITION_J1_DROP = 420;
+    static final int ARM_POSITION_J1_DRIVE = 510;
+    static final int ARM_POSITION_J2_DROP = 1210;
+    static final int ARM_POSITION_J2_DRIVE = 1310;
+    static final int ARM_POSITION_J3_DROP = 2090;
+    static final int ARM_POSITION_J3_DRIVE = 2240;
+    static final int ARM_POSITION_J4_DROP = 2500;
+    static final int ARM_POSITION_J4_DRIVE = 3000;
     static final int ARM_POSITION_TOP = 3050;
     static final int ELEMENT_THRESHHOLD = 25;
     public DcMotor motorFrontLeft;  // motor1
@@ -50,7 +52,7 @@ public class LlamaBot
     public DcMotor motorRearRight; // motor 4
     public Servo claw;
     public DcMotor arm;
-   // public DistanceSensor distance;
+    public DistanceSensor distance;
 
 
     private ElapsedTime     runtime = new ElapsedTime();
@@ -71,8 +73,11 @@ public class LlamaBot
     static final double     Arm_Speed               = 0.3;
     static final int        ARM_BOTTOM              = ARM_POSITION_FLOOR;
     static final int        ARM_TOP                 = ARM_POSITION_TOP;
-    static final double     ARM_SPEED               = 0.5;
-    static final double     CLAW_OPEN               = 1;
+    static final double
+
+
+            ARM_SPEED               = 0.5;
+    static final double     CLAW_OPEN               = 0.55;
     static final double     CLAW_CLOSE              = 0.3;
     static final double     CLAW_STEP               = 0.05;
 
@@ -463,8 +468,12 @@ public class LlamaBot
     }
 
     public void armMoveToPosition(int position, LinearOpMode opmode) {
+        armMoveToPosition(position, 0.7, opmode);
+    }
+
+    public void armMoveToPosition(int position, double power, LinearOpMode opmode) {
         arm.setTargetPosition(position);
-        arm.setPower(0.7);
+        arm.setPower(power);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (arm.getCurrentPosition() != position) {
             opmode.idle();

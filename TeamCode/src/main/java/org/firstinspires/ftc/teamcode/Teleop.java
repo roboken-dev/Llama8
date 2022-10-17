@@ -142,6 +142,16 @@ public class Teleop extends LinearOpMode {
                 robot.motorRearRight.setPower(G1leftTrigger * speed_control);
 
                 telemetry.addData("Status", "Strafing Left");    //
+            } else if (gamepad1.right_bumper) {
+                robot.motorFrontLeft.setPower(-0.4);
+                robot.motorRearLeft.setPower(-0.4);
+                robot.motorFrontRight.setPower(0.4);
+                robot.motorRearRight.setPower(0.4);
+            } else if (gamepad1.left_bumper) {
+                robot.motorFrontLeft.setPower(0.4);
+                robot.motorRearLeft.setPower(0.4);
+                robot.motorFrontRight.setPower(-0.4);
+                robot.motorRearRight.setPower(-0.4);
             } else {
 
                 //Tank Drive
@@ -158,6 +168,10 @@ public class Teleop extends LinearOpMode {
             } else if (gamepad2.left_bumper) {
                 robot.openClawStep();
             }
+
+
+
+            telemetry.addData("claw value", robot.clawPosition);
 
             telemetry.update();
         }
