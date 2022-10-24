@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
@@ -52,7 +53,8 @@ public class LlamaBot
     public DcMotor motorRearRight; // motor 4
     public Servo claw;
     public DcMotor arm;
-    public DistanceSensor distance;
+    public DistanceSensor distance1;
+    public DistanceSensor distance2;
 
 
     private ElapsedTime     runtime = new ElapsedTime();
@@ -94,7 +96,8 @@ public class LlamaBot
         this.hwMap = hwMap;
         arm = hwMap.dcMotor.get("arm");
         claw = hwMap.servo.get("claw");
-   //     distance = hwMap.get(DistanceSensor.class, "distance");
+        distance1 = hwMap.get(DistanceSensor.class, "distance1");
+        distance2 = hwMap.get(DistanceSensor.class, "distance2");
 
         // reset to default
         initMotors();
@@ -477,6 +480,65 @@ public class LlamaBot
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while (arm.getCurrentPosition() != position) {
             opmode.idle();
+        }
+    }
+
+    public void sensorFindPole(LinearOpMode opMode) {
+        final double D1_TARGET = 12;
+        final double D2_TARGET = 11;
+        final double SPEED = -0.075;
+        final double ERROR_RANGE = 0.5;
+        double forward = 0;
+        double right = 0;
+        double strafingSpeed = 0;
+        double drivingSpeed = 0;
+        double d1;
+        double d2;
+
+        boolean inPosition = false;
+
+        while (!inPosition) {
+            d1 = distance1.getDistance(DistanceUnit.CM);
+            d2 = distance2.getDistance(DistanceUnit.CM);
+            forward = d1 - D1_TARGET;
+            right = d2 - D2_TARGET;
+
+            if (!(-ERROR_RANGE <= forward && forward < ERROR_RANGE)) {
+                /*
+                if (forward > 5) {
+                    drivingSpeed = SPEED;
+                } else if (forward < -5) {
+                    drivingSpeed = -SPEED;
+                } else {
+                    drivingSpeed = forward / 5 * SPEED;
+                }
+                 */
+                drivingSpeed = forward > 0 ? SPEED : -SPEED;
+                driveForward(drivingSpeed);
+
+            } else if (!(-ERROR_RANGE <= right && right <= ERROR_RANGE)) {
+
+                /*
+                if (right > 10) {
+                    strafingSpeed = SPEED;
+                } else if (right < -10) {
+                    strafingSpeed = -SPEED;
+                } else {
+                    strafingSpeed = right / 10 * SPEED;
+                }
+*/
+                strafingSpeed = right > 0 ? SPEED : -SPEED;
+                strafeRight(strafingSpeed);
+            } else {
+                inPosition = true;
+                driveForward(0);
+            }
+            opMode.telemetry.addData("distance1", d1);
+            opMode.telemetry.addData("distance2", d2);
+            opMode.telemetry.addData("drivingSpeed", drivingSpeed);
+            opMode.telemetry.addData("strafingSpeed", strafingSpeed);
+            opMode.telemetry.addData("inPosition", inPosition);
+            opMode.telemetry.update();
         }
     }
 

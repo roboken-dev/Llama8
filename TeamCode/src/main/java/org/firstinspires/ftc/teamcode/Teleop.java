@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import java.util.Locale;
 
 
-@TeleOp(name = "TeleOp", group = "12806")
+@TeleOp(name = "TeleOp", group = "18051")
 public class Teleop extends LinearOpMode {
 
     LlamaBot robot   = new LlamaBot();
@@ -79,6 +79,16 @@ public class Teleop extends LinearOpMode {
                 }
             }
 
+            if (gamepad2.dpad_up)
+                robot.arm.setTargetPosition(LlamaBot.ARM_POSITION_J4_DROP);
+            if (gamepad2.dpad_down)
+                robot.arm.setTargetPosition(LlamaBot.ARM_POSITION_J1_DROP);
+            if (gamepad2.dpad_right)
+                robot.arm.setTargetPosition(LlamaBot.ARM_POSITION_J2_DROP);
+            if (gamepad2.dpad_left)
+                robot.arm.setTargetPosition(LlamaBot.ARM_POSITION_J3_DROP);
+
+
             if (gamepad2.x) {
                 robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 boolean exitLoop = false;
@@ -103,6 +113,13 @@ public class Teleop extends LinearOpMode {
 
             } else {
                 robot.arm.setPower(armSpeed);
+            }
+
+
+            if (gamepad2.a) {
+                robot.sensorFindPole(this);
+                telemetry.addData("pole found:", "true");
+                telemetry.update();
             }
 
 
@@ -142,16 +159,6 @@ public class Teleop extends LinearOpMode {
                 robot.motorRearRight.setPower(G1leftTrigger * speed_control);
 
                 telemetry.addData("Status", "Strafing Left");    //
-            } else if (gamepad1.right_bumper) {
-                robot.motorFrontLeft.setPower(-0.4);
-                robot.motorRearLeft.setPower(-0.4);
-                robot.motorFrontRight.setPower(0.4);
-                robot.motorRearRight.setPower(0.4);
-            } else if (gamepad1.left_bumper) {
-                robot.motorFrontLeft.setPower(0.4);
-                robot.motorRearLeft.setPower(0.4);
-                robot.motorFrontRight.setPower(-0.4);
-                robot.motorRearRight.setPower(-0.4);
             } else {
 
                 //Tank Drive
@@ -171,7 +178,10 @@ public class Teleop extends LinearOpMode {
 
 
 
+
             telemetry.addData("claw value", robot.clawPosition);
+            telemetry.addData("sensor value 1", robot.distance1.getDistance(DistanceUnit.CM));
+            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
 
             telemetry.update();
         }
