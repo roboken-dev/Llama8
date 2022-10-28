@@ -31,6 +31,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import android.graphics.Color;
 
 
 
@@ -47,6 +49,11 @@ public class LlamaBot
     static final int ARM_POSITION_J4_DRIVE = 3000;
     static final int ARM_POSITION_TOP = 3050;
     static final int ELEMENT_THRESHHOLD = 25;
+
+    static final int RED = 1;
+    static final int GREEN = 2;
+    static final int BLUE = 3;
+
     public DcMotor motorFrontLeft;  // motor1
     public DcMotor motorRearLeft;  // motor 2
     public DcMotor motorFrontRight; // motor 3
@@ -55,6 +62,7 @@ public class LlamaBot
     public DcMotor arm;
     public DistanceSensor distance1;
     public DistanceSensor distance2;
+    public ColorSensor color;
 
 
     private ElapsedTime     runtime = new ElapsedTime();
@@ -98,6 +106,7 @@ public class LlamaBot
         claw = hwMap.servo.get("claw");
         distance1 = hwMap.get(DistanceSensor.class, "distance1");
         distance2 = hwMap.get(DistanceSensor.class, "distance2");
+        color = hwMap.get(ColorSensor.class, "color");
 
         // reset to default
         initMotors();
@@ -539,6 +548,23 @@ public class LlamaBot
             opMode.telemetry.addData("strafingSpeed", strafingSpeed);
             opMode.telemetry.addData("inPosition", inPosition);
             opMode.telemetry.update();
+        }
+    }
+
+    public int getColor() {
+
+        float hsvValues[] = {0F, 0F, 0F};
+        Color.RGBToHSV(
+                (int) (color.red() * 255 ),
+                (int) (color.green() * 255),
+                (int) (color.blue() * 255),
+                hsvValues);
+        if (hsvValues[0] < 30 || hsvValues[0] > 330) {
+            return RED;
+        } else if (hsvValues[0] > 105 && hsvValues[0] < 165) {
+            return GREEN;
+        } else {
+            return BLUE;
         }
     }
 
