@@ -45,14 +45,14 @@ public class LlamaBot
     static final int ARM_POSITION_J2_DRIVE = 1310;
     static final int ARM_POSITION_J3_DROP = 2090;
     static final int ARM_POSITION_J3_DRIVE = 2240;
-    static final int ARM_POSITION_J4_DROP = 2500;
-    static final int ARM_POSITION_J4_DRIVE = 3000;
+    static final int ARM_POSITION_J4_DROP = 2950;
+    static final int ARM_POSITION_J4_DRIVE = 3050;
     static final int ARM_POSITION_TOP = 3050;
     static final int ELEMENT_THRESHHOLD = 25;
 
-    static final int RED = 1;
-    static final int GREEN = 2;
-    static final int BLUE = 3;
+    public static final int RED = 1;
+    public static final int GREEN = 2;
+    public static final int BLUE = 3;
 
     public DcMotor motorFrontLeft;  // motor1
     public DcMotor motorRearLeft;  // motor 2
@@ -87,9 +87,9 @@ public class LlamaBot
 
 
             ARM_SPEED               = 0.5;
-    static final double     CLAW_OPEN               = 0.55;
-    static final double     CLAW_CLOSE              = 0.3;
-    static final double     CLAW_STEP               = 0.05;
+    public static final double     CLAW_OPEN               = 0.3;
+    public static final double     CLAW_CLOSE              = 0;
+    public static final double     CLAW_STEP               = 0.05;
 
 
 
