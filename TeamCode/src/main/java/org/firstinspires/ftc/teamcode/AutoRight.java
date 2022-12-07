@@ -40,7 +40,7 @@ public class AutoRight extends LinearOpMode {
         drive.closeClaw(500);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J1_DRIVE, this);
         drive.followTrajectory(trajectory1);
-        int color = drive.getColor();
+        int color = drive.getColorRed();
         telemetry.addData("color", color);
         telemetry.update();
         drive.followTrajectory(traj1);

@@ -34,13 +34,13 @@ public class AutoLeft extends LinearOpMode {
         Trajectory traj1 = drive.trajectoryBuilder(trajectory1.end())
                 .forward(2)
                 .splineTo(new Vector2d(60, 22), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(22.75, 11), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(22.75, 13), Math.toRadians(270))
                 .build();
 
         drive.closeClaw(500);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J1_DRIVE, this);
         drive.followTrajectory(trajectory1);
-        int color = drive.getColor();
+        int color = drive.getColorRed();
         telemetry.addData("color", color);
         telemetry.update();
         drive.followTrajectory(traj1);

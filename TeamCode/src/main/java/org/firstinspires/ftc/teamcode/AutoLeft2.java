@@ -13,14 +13,14 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "AutoRight2", group = "18051")
-public class AutoRight2 extends LinearOpMode {
+@Autonomous(name = "AutoLeft2", group = "18051")
+public class AutoLeft2 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(-32, 65, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(40, 65, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         waitForStart();
@@ -32,9 +32,8 @@ public class AutoRight2 extends LinearOpMode {
                 .build();
 
         Trajectory traj1 = drive.trajectoryBuilder(trajectory1.end())
-                .forward(2)
-                .splineTo(new Vector2d(-12, 22), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-25.25, 13), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(26, 63), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(22.50, 12), Math.toRadians(340))
                 .build();
 
         drive.closeClaw(500);
@@ -76,17 +75,17 @@ public class AutoRight2 extends LinearOpMode {
         TrajectorySequence moveToFinalPos;
         if (color == LlamaBot.RED) {
             moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
-                    .strafeLeft(10)
+                    .strafeLeft(34)
                     .forward(-10)
                     .build();
         } else if (color == LlamaBot.GREEN) {
             moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
-                    .strafeRight(10)
+                    .strafeLeft(10)
                     .forward(-10)
                     .build();
         } else {
             moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
-                    .strafeRight(34)
+                    .strafeRight(10)
                     .forward(-10)
                     .build();
 
@@ -96,3 +95,4 @@ public class AutoRight2 extends LinearOpMode {
         drive.closeClaw(500);
     }
 }
+

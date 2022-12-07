@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "AutoRight2", group = "18051")
-public class AutoRight2 extends LinearOpMode {
+@Autonomous(name = "autoRightExtra", group = "18051")
+public class autoRightExtra extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -44,7 +44,7 @@ public class AutoRight2 extends LinearOpMode {
         telemetry.addData("color", color);
         telemetry.update();
         drive.followTrajectory(traj1);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP,0.3, this);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.3, this);
 
         double D1_TARGET = 4.1;
         double D2_TARGET = 11;
@@ -68,24 +68,40 @@ public class AutoRight2 extends LinearOpMode {
                 .build();
         drive.followTrajectorySequence(poleFinder);
         drive.openClaw(500);
-        Trajectory back = drive.trajectoryBuilder(poleFinder.end())
-                .forward(-6)
+
+        Trajectory driveBack = drive.trajectoryBuilder(poleFinder.end())
+                .forward(-4)
                 .build();
-        drive.followTrajectory(back);
+        drive.followTrajectory(driveBack);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J1_DRIVE, 0.7, this);
+        TrajectorySequence extra = drive.trajectorySequenceBuilder(driveBack.end())
+                .splineToConstantHeading(new Vector2d(-25.25, 15), Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-65, 11.25, Math.toRadians(180)), Math.toRadians(180))
+                .setVelConstraint(new MecanumVelocityConstraint(15, DriveConstants.TRACK_WIDTH))
+                .forward(1)
+                .build();
+        drive.followTrajectorySequence(extra);
+        drive.closeClaw(500);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 0.3, this);
+
+
+
+
+        /*
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J1_DRIVE, this);
         TrajectorySequence moveToFinalPos;
         if (color == LlamaBot.RED) {
-            moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
+            moveToFinalPos = drive.trajectorySequenceBuilder(extra.end())
                     .strafeLeft(10)
                     .forward(-10)
                     .build();
         } else if (color == LlamaBot.GREEN) {
-            moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
+            moveToFinalPos = drive.trajectorySequenceBuilder(extra.end())
                     .strafeRight(10)
                     .forward(-10)
                     .build();
         } else {
-            moveToFinalPos = drive.trajectorySequenceBuilder(back.end())
+            moveToFinalPos = drive.trajectorySequenceBuilder(extra.end())
                     .strafeRight(34)
                     .forward(-10)
                     .build();
@@ -94,5 +110,8 @@ public class AutoRight2 extends LinearOpMode {
         drive.followTrajectorySequence(moveToFinalPos);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, this);
         drive.closeClaw(500);
+
+         */
+        }
     }
-}
+
