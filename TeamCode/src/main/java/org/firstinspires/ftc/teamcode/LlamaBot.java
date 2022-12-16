@@ -41,12 +41,14 @@ public class LlamaBot
     static final int ARM_POSITION_FLOOR = 0;
     static final int ARM_POSITION_J1_DROP = 420;
     static final int ARM_POSITION_J1_DRIVE = 480;
-    static final int ARM_POSITION_J2_DROP = 1210;
-    static final int ARM_POSITION_J2_DRIVE = 1310;
+    static final int ARM_POSITION_J2_DROP = 950;
+    static final int ARM_POSITION_J2_DRIVE = 1200;
     static final int ARM_POSITION_J3_DROP = 2090;
     static final int ARM_POSITION_J3_DRIVE = 2240;
     static final int ARM_POSITION_J4_DROP = 2950;
     static final int ARM_POSITION_J4_DRIVE = 3050;
+    static final int ARM_POSITION_CONE_PICK1 = 1000;
+    static final int ARM_POSITION_CONE_PICK2 = 900;
     static final int ARM_POSITION_TOP = 3050;
 
     static final int ELEMENT_THRESHHOLD = 25;

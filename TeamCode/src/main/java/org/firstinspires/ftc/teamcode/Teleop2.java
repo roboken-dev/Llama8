@@ -1,18 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.view.View;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.robot.Robot;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-import java.util.Locale;
 
 
 @TeleOp(name = "TeleOp2", group = "18051")
@@ -30,14 +22,11 @@ public class Teleop2 extends LinearOpMode {
 /*
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
-
         // values is a reference to the hsvValues array.
         final float values[] = hsvValues;
-
         // sometimes it helps to multiply the raw RGB values with a scale factor
         // to amplify/attentuate the measured values.
         final double SCALE_FACTOR = 255;
-
         // get a reference to the RelativeLayout so we can change the background
         // color of the Robot Controller app to match the hue detected by the RGB sensor.
         int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
@@ -62,9 +51,10 @@ public class Teleop2 extends LinearOpMode {
         while (opModeIsActive()) {
 
             double G1rightStickY = gamepad1.right_stick_y;
-            double G1rightStickX = gamepad1.right_stick_x;
             double G1leftStickY = gamepad1.left_stick_y;
+            double G1rightStickX = gamepad1.right_stick_x;
             double G1leftStickX = gamepad1.left_stick_x;
+
             double armSpeed = -gamepad2.left_stick_y * robot.ARM_SPEED;
             float G1rightTrigger = gamepad1.right_trigger;
             float G1leftTrigger = gamepad1.left_trigger;
@@ -119,7 +109,7 @@ public class Teleop2 extends LinearOpMode {
 
 
             if (gamepad2.a) {
-                robot.sensorFindPole(this);
+              //  robot.sensorFindPole(this);
                 telemetry.addData("pole found:", "true");
                 telemetry.update();
             }
@@ -142,9 +132,18 @@ public class Teleop2 extends LinearOpMode {
                 speed_control = 0.5f;
                 telemetry.addData("Status", "Setting Speed to .5");    //
             }
-
-
-
+            if (gamepad1.b){
+                robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                robot.motorRearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            }
+            if (gamepad1.y){
+                robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                robot.motorRearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
 
             if (G1rightTrigger > 0 && G1leftTrigger == 0) {
 
@@ -167,18 +166,14 @@ public class Teleop2 extends LinearOpMode {
             } else {
 
                 //Tank Drive
-                double value1 = (G1leftStickY * Math.abs(G1leftStickY) - G1leftStickX * Math.abs(G1leftStickX));
-                double value2 = (G1leftStickY * Math.abs(G1leftStickY) + G1leftStickX * Math.abs(G1leftStickX));
-                robot.motorFrontLeft.setPower(value1 * speed_control);
-                robot.motorRearLeft.setPower(value2 * speed_control);
-                robot.motorFrontRight.setPower(value2 * speed_control);
-                robot.motorRearRight.setPower(value1 * speed_control);
 
+                robot.motorFrontLeft.setPower((G1leftStickY * Math.abs(G1leftStickY) - G1leftStickX*Math.abs(G1leftStickX))* speed_control);
+                robot.motorRearLeft.setPower((G1leftStickY * Math.abs(G1leftStickY)+G1leftStickX *Math.abs(G1leftStickX)) * speed_control);
+                robot.motorFrontRight.setPower((G1rightStickY * Math.abs(G1rightStickY) + G1rightStickX* Math.abs(G1rightStickX)) * speed_control);
+                robot.motorRearRight.setPower((G1rightStickY * Math.abs(G1rightStickY) - G1rightStickX*Math.abs(G1rightStickX)) * speed_control);
 
                 telemetry.addData("Status", "Moving");    //
             }
-
-
 
             if (gamepad2.right_bumper) {
                 robot.closeClawStep();
@@ -190,8 +185,10 @@ public class Teleop2 extends LinearOpMode {
 
 
             telemetry.addData("claw value", robot.clawPosition);
-            telemetry.addData("right distance", robot.distance2.getDistance(DistanceUnit.CM));
-            telemetry.addData("forward distance", robot.distance1.getDistance(DistanceUnit.CM));
+            telemetry.addData("sensor value 1", robot.distance1.getDistance(DistanceUnit.CM));
+            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
+            telemetry.addData("right stick x value", G1rightStickX);
+            telemetry.addData("right stick y value", G1rightStickY);
 
             telemetry.update();
         }
@@ -203,26 +200,19 @@ public class Teleop2 extends LinearOpMode {
 
 
 /*
-
             if (gamepad2.left_stick_y > 0 || gamepad2.left_stick_y < 0) {
                 robot.arm.setPower(gamepad2.left_stick_y * ArmSpeedControl+0.2);
             }
-
             if (gamepad2.left_stick_y < 0) {
                 robot.arm.setPower(gamepad2.left_stick_y *( ArmSpeedControl));
             }
-
             if (gamepad2.left_stick_y == 0) {
                 robot.arm.setPower(0.0);
-
             }
-
             if (gamepad2.y)
             {
                 ArmSpeedControl = 1.0;
             }
-
-
             if (gamepad2.a)
             {
                 ArmSpeedControl = 0.4;
@@ -231,7 +221,6 @@ public class Teleop2 extends LinearOpMode {
             {
                 ArmSpeedControl = 0.8;
             }
-
             if (G2leftTrigger > 0) {
                 robot.spinner.setPower(0.6);
             } else if (G2rightTrigger > 0) {
@@ -239,14 +228,11 @@ public class Teleop2 extends LinearOpMode {
             } else {
                 robot.spinner.setPower(0);
             }
-
         }
-
         // Set the panel back to the default color
         /*
         relativeLayout.post(new Runnable() {
             public void run() {
                 relativeLayout.setBackgroundColor(Color.WHITE);
             }
-
          */
