@@ -33,12 +33,6 @@ public class AutoRightCones extends LinearOpMode {
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, this);
 
         // Move to Low Pole #1
-        /* ORIG:
-        Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-16, 49.25, Math.toRadians(180)), Math.toRadians(180))
-                .build();
-        drive.followTrajectory(moveToLowPole1);
-         */
         Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(-24.5, 56))
                 .build();
@@ -47,10 +41,7 @@ public class AutoRightCones extends LinearOpMode {
         // Move to drop cone position
         double TARGET_DISTANCE = 5;
         double distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        telemetry.addData("distance", distance);
-        telemetry.update();
         double forwardDrive = distance - TARGET_DISTANCE;
-        sleep(2000);
         if (forwardDrive > 5) {
             forwardDrive = 5;
         } else if (forwardDrive < -5) {
@@ -68,18 +59,9 @@ public class AutoRightCones extends LinearOpMode {
         drive.openClaw(500);
 
         // Move to cones pile
-        /* ORIG:
-        Trajectory moveToPile = drive.trajectoryBuilder(moveToDropCone.end())
-                .splineToConstantHeading(new Vector2d(-12, 49.25), Math.toRadians(315))
-                .splineToConstantHeading(new Vector2d(-12, 26), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-65, 11.25), Math.toRadians(180))
-                .build();
-        drive.followTrajectory(moveToPile);
-         */
         Trajectory moveToPile = drive.trajectoryBuilder(moveToDropCone.end())
                 .splineToConstantHeading(new Vector2d(-22, 65), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(-12, 26), Math.toRadians(270))
-//                .splineToSplineHeading(new Pose2d(-62, 11.25, Math.toRadians(180)), Math.toRadians(180))
                 .splineTo(new Vector2d(-56, 11.25), Math.toRadians(180))
                 .build();
         drive.followTrajectory(moveToPile);
