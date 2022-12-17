@@ -92,24 +92,28 @@ public class AutoRightCones extends LinearOpMode {
             tfod.setZoom(1.0, 16.0 / 9.0);
         }
 
+        Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
+                .lineTo(new Vector2d(-24.5, 55))
+                .build();
+        Trajectory t1 = drive.trajectoryBuilder(moveToLowPole1.end())
+                .lineTo(new Vector2d(-24.5, 63))
+                .build();
+        Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(330))
+                .splineToSplineHeading(new Pose2d(-12, 48, Math.toRadians(270)), Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(-12, 24, Math.toRadians(270)), Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
+//                .splineToSplineHeading(new Pose2d(-60, 12, Math.toRadians(180)), Math.toRadians(180))
+                .build();
+
         telemetry.addLine("Ready to start...");
         telemetry.update();
-
-        waitForStart();
-
-        if (isStopRequested()) return;
-
-        // Pick cone to driving height
-        drive.closeClaw(100);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, this);
 
         // target position, we assume 3 if something fails...
         int targetPosition = 2;
 
         // Try to read sleeve position
-        int count = 0;
-        while (opModeIsActive() && count < 4) {
-            ++count;
+        while (!isStarted()) {//opModeIsActive() && count < 4) {
+//            ++count;
             if (tfod == null) {
                 // Initialization failed
                 break;
@@ -122,8 +126,6 @@ public class AutoRightCones extends LinearOpMode {
                 } else if (updatedRecognitions.size() == 0) {
                     continue;
                 } else {
-                    telemetry.addData("# Objects Detected", updatedRecognitions.size());
-
                     // step through the list of recognitions and display image position/size information for each one
                     // Note: "Image number" refers to the randomized image orientation/number
                     float confidence = 0;
@@ -146,8 +148,6 @@ public class AutoRightCones extends LinearOpMode {
                             label = recognition.getLabel();
                         }
                     }
-                    telemetry.addData("tfod label", label);
-                    telemetry.update();
                     if (label.equals("1")) {
                         targetPosition = 1;
                     } else if (label.equals("2")) {
@@ -155,17 +155,61 @@ public class AutoRightCones extends LinearOpMode {
                     } else if (label.equals("3")) {
                         targetPosition = 3;
                     }
+                    telemetry.addData("Ready to start...  ", targetPosition);
+                    telemetry.update();
                 }
             }
         }
-//        tfod.deactivate();
 
+        if (isStopRequested()) return;
+
+        // Pick cone to driving height
+        drive.closeClaw(50);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
+
+        /*
         // Move to Low Pole #1
         Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-24.5, 56))
+                .lineTo(new Vector2d(-24.5, 55))
                 .build();
+         */
         drive.followTrajectory(moveToLowPole1);
+        drive.openClaw(100);
+        /*
+        Trajectory t1 = drive.trajectoryBuilder(moveToLowPole1.end())
+                .lineTo(new Vector2d(-24.5, 63))
+                .build();
+         */
+        drive.followTrajectory(t1);
+        telemetry.addLine("Moved backward");
+        /*
+        Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(330))
+                .splineToSplineHeading(new Pose2d(-12, 48, Math.toRadians(270)), Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(-12, 24, Math.toRadians(270)), Math.toRadians(270))
+//                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
+                .splineToSplineHeading(new Pose2d(-60, 12, Math.toRadians(180)), Math.toRadians(180))
+                .build();
+         */
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
+        drive.followTrajectory(t2);
 
+        updatePosition(drive);
+
+        TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .setVelConstraint(slowVelocity)
+                .splineTo(new Vector2d(-52, 11), Math.toRadians(180))
+                .forward(9)
+                .build();
+        drive.followTrajectorySequence(t3);
+        drive.closeClaw(100);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 1.0, false, this);
+        sleep(100);
+        Trajectory t4 = drive.trajectoryBuilder(t3.end())
+                .back(48)
+                .build();
+        drive.followTrajectory(t4);
+        return;
+/*
         // Move to drop cone position
         double TARGET_DISTANCE = 5;
         double distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
@@ -194,9 +238,10 @@ public class AutoRightCones extends LinearOpMode {
 
         // Move to cones pile
         Trajectory moveToPile = drive.trajectoryBuilder(moveToDropCone.end())
-                .splineToConstantHeading(new Vector2d(-22, 63), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-12, 23), Math.toRadians(270))
-                .splineTo(new Vector2d(-50, 5), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-22, 59), Math.toRadians(60))
+                .splineToConstantHeading(new Vector2d(-12, 48), Math.toRadians(285))
+                .splineTo(new Vector2d(-11, 22.5), Math.toRadians(255))
+                .splineTo(new Vector2d(-36, 11), Math.toRadians(160))
                 .build();
 
         telemetry.addLine("Trajectory built, executing");
@@ -276,7 +321,7 @@ public class AutoRightCones extends LinearOpMode {
         } else if (forwardDrive < -5) {
             forwardDrive = -2;
         }
-        TrajectorySequence moveToPickCone2 = drive.trajectorySequenceBuilder(moveToPile.end())
+        TrajectorySequence moveToPickCone2 = drive.trajectorySequenceBuilder(moveToPile2.end())
                 .setVelConstraint(slowVelocity)
                 .forward(forwardDrive)
                 .build();
@@ -331,6 +376,7 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectorySequence(moveToFinalPos);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, this);
         drive.closeClaw(500);
+ */
     }
 
     /**
@@ -388,9 +434,9 @@ public class AutoRightCones extends LinearOpMode {
          *      In this example, it is centered on the robot (left-to-right and front-to-back), and 6 inches above ground level.
          */
 
-        final float CAMERA_FORWARD_DISPLACEMENT  = 0.0f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
-        final float CAMERA_VERTICAL_DISPLACEMENT = 6.0f * mmPerInch;   // eg: Camera is 6 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = 0.0f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
+        final float CAMERA_FORWARD_DISPLACEMENT  = 2.25f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
+        final float CAMERA_VERTICAL_DISPLACEMENT = 7.25f * mmPerInch;   // eg: Camera is 6 Inches above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = -6.0f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
 
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -434,10 +480,12 @@ public class AutoRightCones extends LinearOpMode {
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, rx, ry, rz)));
     }
 
-    void updatePosition() {
+    void updatePosition(SampleMecanumDrive drive) {
         boolean targetVisible = false;
+        Pose2d newPose = null;
 
         targets.activate();
+        sleep(200);
         int count = 0;
         while (!targetVisible && count < 100) {
             ++count;
@@ -464,24 +512,24 @@ public class AutoRightCones extends LinearOpMode {
             if (targetVisible) {
                 // express position (translation) of robot in inches.
                 VectorF translation = lastLocation.getTranslation();
-                telemetry.addData("Pos (inches)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                        translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-                // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-                telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-            }
-            else {
+                newPose = new Pose2d(translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, Math.toRadians(rotation.thirdAngle));
+
+                telemetry.addData("Pos", newPose);
+            } else {
                 telemetry.addData("Visible Target", "none");
             }
             telemetry.addData("count", count);
+            telemetry.addData("Pose Estimate", drive.getPoseEstimate());
             telemetry.update();
-            sleep(100);
         }
 
         // Disable Tracking when we are done;
         targets.deactivate();
-
-        sleep(5000);
+        if (newPose != null) {
+            drive.setPoseEstimate(newPose);
+            telemetry.addData("New Pose Estimate", drive.getPoseEstimate());
+            telemetry.update();
+        }
     }
 }
