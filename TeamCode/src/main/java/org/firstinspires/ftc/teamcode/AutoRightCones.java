@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "AutoRightCones", group = "18051")
+@Autonomous(name = "AutoRightConesBlue", group = "18051")
 public class AutoRightCones extends LinearOpMode {
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
@@ -165,7 +165,7 @@ public class AutoRightCones extends LinearOpMode {
 
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(-62, 13), Math.toRadians(180))
+                .splineTo(new Vector2d(-64, 13), Math.toRadians(180))
                 .build();
         drive.followTrajectorySequence(t3);
         drive.closeClaw(200);
@@ -190,7 +190,7 @@ public class AutoRightCones extends LinearOpMode {
         updatePosition(drive);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate(), Math.toRadians(190))
-                .splineToSplineHeading(new Pose2d(-62, 12.75, Math.toRadians(180)), Math.toRadians(180),
+                .splineToSplineHeading(new Pose2d(-64, 11, Math.toRadians(180)), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -212,10 +212,26 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectory(t7);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
         drive.openClaw(50);
-        Trajectory t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-11,15), Math.toRadians(0))
-                .build();
+
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, false, this);
+        // Move to end location
+        Trajectory t8;
+        if (targetPosition == 1) {
+            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
+                    .splineToConstantHeading(new Vector2d(-11,15), Math.toRadians(0))
+                    .build();
+        } else if (targetPosition == 2) {
+            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
+                    .splineToConstantHeading(new Vector2d(-35.50, 12.25), Math.toRadians(90))
+                    .build();
+        } else {
+            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(280))
+                    .splineToLinearHeading(new Pose2d(-60.50, 13, 180), Math.toRadians(180))
+                    .build();
+
+        }
         drive.followTrajectory(t8);
+        drive.closeClaw(500);
         return;
 /*
         // Move to drop cone position
