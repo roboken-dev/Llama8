@@ -93,7 +93,7 @@ public class AutoRightCones extends LinearOpMode {
         }
 
         Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-24.5, 55))
+                .lineTo(new Vector2d(-24.5, 55.5))
                 .build();
         Trajectory t1 = drive.trajectoryBuilder(moveToLowPole1.end())
                 .lineTo(new Vector2d(-24.5, 63))
@@ -101,10 +101,9 @@ public class AutoRightCones extends LinearOpMode {
         Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(330))
                 .splineToSplineHeading(new Pose2d(-12, 48, Math.toRadians(270)), Math.toRadians(270))
                 .splineToSplineHeading(new Pose2d(-12, 24, Math.toRadians(270)), Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
-//                .splineToSplineHeading(new Pose2d(-60, 12, Math.toRadians(180)), Math.toRadians(180))
+//                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
+                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
                 .build();
-
         telemetry.addLine("Ready to start...");
         telemetry.update();
 
@@ -131,17 +130,6 @@ public class AutoRightCones extends LinearOpMode {
                     float confidence = 0;
                     String label = "";
                     for (Recognition recognition : updatedRecognitions) {
-/*
-                    double col = (recognition.getLeft() + recognition.getRight()) / 2;
-                    double row = (recognition.getTop() + recognition.getBottom()) / 2;
-                    double width = Math.abs(recognition.getRight() - recognition.getLeft());
-                    double height = Math.abs(recognition.getTop() - recognition.getBottom());
-
-                    telemetry.addData("", " ");
-                    telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-                    telemetry.addData("- Position (Row/Col)", "%.0f / %.0f", row, col);
-                    telemetry.addData("- Size (Width/Height)", "%.0f / %.0f", width, height);
-*/
                         float c = recognition.getConfidence();
                         if (c > confidence) {
                             confidence = c;
@@ -166,30 +154,10 @@ public class AutoRightCones extends LinearOpMode {
         // Pick cone to driving height
         drive.closeClaw(50);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
-
-        /*
-        // Move to Low Pole #1
-        Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-24.5, 55))
-                .build();
-         */
         drive.followTrajectory(moveToLowPole1);
         drive.openClaw(100);
-        /*
-        Trajectory t1 = drive.trajectoryBuilder(moveToLowPole1.end())
-                .lineTo(new Vector2d(-24.5, 63))
-                .build();
-         */
         drive.followTrajectory(t1);
         telemetry.addLine("Moved backward");
-        /*
-        Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(330))
-                .splineToSplineHeading(new Pose2d(-12, 48, Math.toRadians(270)), Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-12, 24, Math.toRadians(270)), Math.toRadians(270))
-//                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
-                .splineToSplineHeading(new Pose2d(-60, 12, Math.toRadians(180)), Math.toRadians(180))
-                .build();
-         */
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
         drive.followTrajectory(t2);
 
@@ -197,17 +165,57 @@ public class AutoRightCones extends LinearOpMode {
 
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(-52, 11), Math.toRadians(180))
-                .forward(9)
+                .splineTo(new Vector2d(-62, 13), Math.toRadians(180))
                 .build();
         drive.followTrajectorySequence(t3);
-        drive.closeClaw(100);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 1.0, false, this);
-        sleep(100);
-        Trajectory t4 = drive.trajectoryBuilder(t3.end())
-                .back(48)
-                .build();
+        drive.closeClaw(200);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
+        sleep(200);
+        Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-26.5, 7, Math.toRadians(270)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                                .build();
         drive.followTrajectory(t4);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
+        drive.openClaw(50);
+        Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
+//                .splineToSplineHeading(new Pose2d(-25.5, 8.75, Math.toRadians(270)), Math.toRadians(90))
+//                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                .build();
+        drive.followTrajectory(t5);
+        updatePosition(drive);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
+        Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate(), Math.toRadians(190))
+                .splineToSplineHeading(new Pose2d(-62, 12.75, Math.toRadians(180)), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+        drive.followTrajectory(t6);
+        drive.closeClaw(300);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DRIVE, 1.0, false, this);
+        sleep(200);
+        Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(0))
+// Test1
+//                .splineTo(new Vector2d(-38, 13), Math.toRadians(0))
+//                .splineToSplineHeading(new Pose2d(-27.5, 20.75, Math.toRadians(90)), Math.toRadians(70))
+// Test2
+//                .splineToSplineHeading(new Pose2d(-38, 12, Math.toRadians(90)), Math.toRadians(350))
+//                .splineToLinearHeading(new Pose2d(-25.5, 21.25, Math.toRadians(90)), Math.toRadians(90))
+// Test3
+                .splineToSplineHeading(new Pose2d(-36, 12, Math.toRadians(90)), Math.toRadians(25))
+                .splineToConstantHeading(new Vector2d(-25.5, 21.25), Math.toRadians(90))
+                .build();
+        drive.followTrajectory(t7);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
+        drive.openClaw(50);
+        Trajectory t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-11,15), Math.toRadians(0))
+                .build();
+        drive.followTrajectory(t8);
         return;
 /*
         // Move to drop cone position
@@ -436,7 +444,7 @@ public class AutoRightCones extends LinearOpMode {
 
         final float CAMERA_FORWARD_DISPLACEMENT  = 2.25f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
         final float CAMERA_VERTICAL_DISPLACEMENT = 7.25f * mmPerInch;   // eg: Camera is 6 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = -6.0f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
+        final float CAMERA_LEFT_DISPLACEMENT     = -5.375f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
 
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
