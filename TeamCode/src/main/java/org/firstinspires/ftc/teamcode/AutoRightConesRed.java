@@ -163,11 +163,11 @@ public class AutoRightConesRed extends LinearOpMode {
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
         drive.followTrajectory(t2);
 
-        boolean posChanged = updatePosition(drive);
+//        boolean posChanged = updatePosition(drive);
 
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(-64, posChanged ? 10.5 : 10.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-64, 10.5), Math.toRadians(180))
                 .build();
         drive.followTrajectorySequence(t3);
         drive.closeClaw(300);
@@ -181,7 +181,7 @@ public class AutoRightConesRed extends LinearOpMode {
                                 .build();
         drive.followTrajectory(t4);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
-        drive.openClaw(50);
+        drive.openClaw(150);
         Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-25.5, 8.75, Math.toRadians(270)), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
@@ -189,10 +189,10 @@ public class AutoRightConesRed extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
                 .build();
         drive.followTrajectory(t5);
-        updatePosition(drive);
+//        updatePosition(drive);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate(), Math.toRadians(190))
-                .splineToSplineHeading(new Pose2d(-64, posChanged ? 10.5 : 10, Math.toRadians(180)), Math.toRadians(180),
+                .splineToSplineHeading(new Pose2d(-64, 10, Math.toRadians(180)), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -213,7 +213,7 @@ public class AutoRightConesRed extends LinearOpMode {
                 .build();
         drive.followTrajectory(t7);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
-        drive.openClaw(50);
+        drive.openClaw(150);
 
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, false, this);
         // Move to end location
@@ -426,12 +426,12 @@ public class AutoRightConesRed extends LinearOpMode {
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
+/*
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
         targets = this.vuforia.loadTrackablesFromAsset("PowerPlay");
 
-        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+        // For convenience, gather together all the trackable objects in one easily-iterable collection
         allTrackables.addAll(targets);
 
         // Name and locate each trackable object
@@ -439,7 +439,7 @@ public class AutoRightConesRed extends LinearOpMode {
         identifyTarget(1, "Red Rear Wall", -halfField, oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(2, "Blue Audience Wall", -halfField, oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(3, "Blue Rear Wall", halfField, oneAndHalfTile, mmTargetHeight, 90, 0, -90);
-
+*/
         /*
          * Create a transformation matrix describing where the camera is on the robot.
          *
@@ -459,7 +459,7 @@ public class AutoRightConesRed extends LinearOpMode {
          * Finally the camera can be translated to its actual mounting position on the robot.
          *      In this example, it is centered on the robot (left-to-right and front-to-back), and 6 inches above ground level.
          */
-
+/*
         final float CAMERA_FORWARD_DISPLACEMENT  = 2.25f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
         final float CAMERA_VERTICAL_DISPLACEMENT = 7.25f * mmPerInch;   // eg: Camera is 6 Inches above ground
         final float CAMERA_LEFT_DISPLACEMENT     = -5.375f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
@@ -467,11 +467,12 @@ public class AutoRightConesRed extends LinearOpMode {
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XZY, DEGREES, 90, 90, 0));
-
+*/
         /**  Let all the trackable listeners know where the camera is.  */
-        for (VuforiaTrackable trackable : allTrackables) {
+/*        for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setCameraLocationOnRobot(parameters.cameraName, cameraLocationOnRobot);
         }
+        */
     }
 
     /**
@@ -484,7 +485,7 @@ public class AutoRightConesRed extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
          */
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters();
-        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.minResultConfidence = 0.5f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 300;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -505,7 +506,7 @@ public class AutoRightConesRed extends LinearOpMode {
         aTarget.setLocation(OpenGLMatrix.translation(dx, dy, dz)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, rx, ry, rz)));
     }
-
+/*
     boolean updatePosition(SampleMecanumDrive drive) {
         boolean targetVisible = false;
         Pose2d newPose = null;
@@ -560,4 +561,6 @@ public class AutoRightConesRed extends LinearOpMode {
         }
         return false;
     }
+
+ */
 }
