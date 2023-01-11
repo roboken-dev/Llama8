@@ -132,13 +132,13 @@ public class Teleop2 extends LinearOpMode {
                 speed_control = 0.5f;
                 telemetry.addData("Status", "Setting Speed to .5");    //
             }
-            if (gamepad1.b){
+            if (gamepad1.b || gamepad1.left_bumper) {
                 robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorRearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            if (gamepad1.y){
+            if (gamepad1.y || gamepad1.right_bumper) {
                 robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -186,7 +186,7 @@ public class Teleop2 extends LinearOpMode {
 
             telemetry.addData("claw value", robot.clawPosition);
             telemetry.addData("sensor value 1", robot.distance1.getDistance(DistanceUnit.CM));
-            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
+//            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
             telemetry.addData("right stick x value", G1rightStickX);
             telemetry.addData("right stick y value", G1rightStickY);
 

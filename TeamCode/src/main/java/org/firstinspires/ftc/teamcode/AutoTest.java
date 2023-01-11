@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "AutoTest1", group = "18051")
+@Disabled
 public class AutoTest extends LinearOpMode {
 
     @Override
@@ -48,9 +50,9 @@ public class AutoTest extends LinearOpMode {
         double D1_TARGET = 3.8;
         double D2_TARGET = 11;
         double d1 = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
+//        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
         double forwardDrive = d1 - D1_TARGET;
-        double rightDrive = d2 - D2_TARGET;
+//        double rightDrive = d2 - D2_TARGET;
         TrajectorySequence poleFinder = drive.trajectorySequenceBuilder(traj1.end())
                 .setVelConstraint(new MecanumVelocityConstraint(20, DriveConstants.TRACK_WIDTH))
                 //.strafeLeft(2)

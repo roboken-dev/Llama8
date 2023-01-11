@@ -22,7 +22,7 @@ public class TeleopDistance extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            telemetry.addData("sensor value side", drive.distanceSide.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("sensor value side", drive.distanceSide.getDistance(DistanceUnit.INCH));
             telemetry.addData("sensor value forward", drive.distanceForward.getDistance(DistanceUnit.INCH));
             double[] val = drive.findTargetPosition();
             telemetry.addData("findPosition Forward", val[1]);

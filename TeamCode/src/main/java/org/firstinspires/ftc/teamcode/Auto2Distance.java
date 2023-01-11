@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "Auto2Distance", group = "18051")
+@Disabled
 public class Auto2Distance extends LinearOpMode {
 
     @Override
@@ -50,9 +52,9 @@ public class Auto2Distance extends LinearOpMode {
         double D1_TARGET = 3;
         double D2_TARGET = 11;
         double d1 = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
+//        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
         double forwardDrive = d1 - D1_TARGET;
-        double rightDrive = d2 - D2_TARGET;
+//        double rightDrive = d2 - D2_TARGET;
         if (forwardDrive > 5) {
             forwardDrive = 5;
         } else if (forwardDrive < -5) {
@@ -60,10 +62,10 @@ public class Auto2Distance extends LinearOpMode {
         }
         while (!isStopRequested()) {
             d1 = drive.distanceForward.getDistance(DistanceUnit.INCH);
-            d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
+//            d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
             telemetry.addData("forward drive", forwardDrive);
             telemetry.addData("d1", d1);
-            telemetry.addData("d2", d2);
+//            telemetry.addData("d2", d2);
             telemetry.update();
 
         }

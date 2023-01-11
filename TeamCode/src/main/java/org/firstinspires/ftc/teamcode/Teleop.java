@@ -180,8 +180,8 @@ public class Teleop extends LinearOpMode {
 
 
             telemetry.addData("claw value", robot.clawPosition);
-            telemetry.addData("right distance", robot.distance2.getDistance(DistanceUnit.CM));
-            telemetry.addData("forward distance", robot.distance1.getDistance(DistanceUnit.CM));
+//            telemetry.addData("right distance", robot.distance2.getDistance(DistanceUnit.CM));
+//            telemetry.addData("forward distance", robot.distance1.getDistance(DistanceUnit.CM));
 
             telemetry.update();
         }

@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -14,6 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name = "AutoRight", group = "18051")
+@Disabled
 public class AutoRight extends LinearOpMode {
 
     @Override
@@ -49,7 +51,7 @@ public class AutoRight extends LinearOpMode {
         double D1_TARGET = 11;
         double D2_TARGET = 11;
         double d1 = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
+//        double d2 = drive.distanceSide.getDistance(DistanceUnit.INCH);
         double forwardDrive = D1_TARGET - d1;
         if (forwardDrive > 5) {
             forwardDrive = 5;
@@ -58,9 +60,9 @@ public class AutoRight extends LinearOpMode {
         }
         telemetry.addData("forward drive", forwardDrive);
         telemetry.addData("d1", d1);
-        telemetry.addData("d2", d2);
+//        telemetry.addData("d2", d2);
         telemetry.update();
-        double rightDrive = D2_TARGET - d2;
+//        double rightDrive = D2_TARGET - d2;
         TrajectorySequence poleFinder = drive.trajectorySequenceBuilder(traj1.end())
                 .setVelConstraint(new MecanumVelocityConstraint(20, DriveConstants.TRACK_WIDTH))
                // .strafeLeft(2)

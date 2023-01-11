@@ -88,8 +88,8 @@ public class SampleMecanumDrive extends MecanumDrive {
     // LlamaBot members
     private DcMotor arm;
     public DistanceSensor distanceForward;
-    public DistanceSensor distanceSide;
-    private ColorSensor color;
+//    public DistanceSensor distanceSide;
+//    private ColorSensor color;
     private double clawPosition;
     public Servo claw;
 
@@ -172,8 +172,8 @@ public class SampleMecanumDrive extends MecanumDrive {
         armInit();
         claw = hardwareMap.servo.get("claw");
         distanceForward = hardwareMap.get(DistanceSensor.class, "distance1");
-        distanceSide = hardwareMap.get(DistanceSensor.class, "distance2");
-        color = hardwareMap.get(ColorSensor.class, "color");
+//        distanceSide = hardwareMap.get(DistanceSensor.class, "distance2");
+//        color = hardwareMap.get(ColorSensor.class, "color");
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -347,14 +347,22 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void armMoveToPosition(int position, LinearOpMode opmode) {
-        armMoveToPosition(position, 0.7, opmode);
+        armMoveToPosition(position, 0.7, true, opmode);
+    }
+
+    public void armMoveToPosition(int position, boolean wait, LinearOpMode opmode) {
+        armMoveToPosition(position, 0.7, wait, opmode);
     }
 
     public void armMoveToPosition(int position, double power, LinearOpMode opmode) {
+        armMoveToPosition(position, power,true, opmode);
+    }
+
+    public void armMoveToPosition(int position, double power, boolean wait, LinearOpMode opmode) {
         arm.setTargetPosition(position);
         arm.setPower(power);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (arm.getCurrentPosition() != position) {
+        while (wait && arm.getCurrentPosition() != position) {
             opmode.idle();
         }
     }
@@ -363,9 +371,9 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         float hsvValues[] = {0F, 0F, 0F};
         Color.RGBToHSV(
-                (int) (color.red() * 255 ),
-                (int) (color.green() * 255),
-                (int) (color.blue() * 255),
+                (int) (0/*color.red()*/ * 255),
+                (int) (0/*color.green()*/ * 255),
+                (int) (0/*color.blue()*/ * 255),
                 hsvValues);
         if (hsvValues[0] < 30 || hsvValues[0] > 330) {
             return LlamaBot.RED;
@@ -380,9 +388,9 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         float hsvValues[] = {0F, 0F, 0F};
         Color.RGBToHSV(
-                (int) (color.red() * 255),
-                (int) (color.green() * 255),
-                (int) (color.blue() * 255),
+                (int) (0/*color.red()*/ * 255),
+                (int) (0/*color.green()*/ * 255),
+                (int) (0/*color.blue()*/ * 255),
                 hsvValues);
         return hsvValues[0];
     }
@@ -391,9 +399,9 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         float hsvValues[] = {0F, 0F, 0F};
         Color.RGBToHSV(
-                (int) (color.red() * 255 ),
-                (int) (color.green() * 255),
-                (int) (color.blue() * 255),
+                (int) (0/*color.red()*/ * 255),
+                (int) (0/*color.green()*/ * 255),
+                (int) (0/*color.blue()*/ * 255),
                 hsvValues);
         if (hsvValues[0] > 190 && hsvValues[0] < 250) {
             return LlamaBot.BLUE;
@@ -409,16 +417,26 @@ public class SampleMecanumDrive extends MecanumDrive {
         claw.setPosition(clawPosition);
     }
 
-    public void openClaw(int timeout) throws InterruptedException {
+    public void openClaw(int timeout) {
         clawPosition = LlamaBot.CLAW_OPEN;
         claw.setPosition(clawPosition);
-        Thread.sleep(timeout);
+        if (timeout > 0) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
-    public void closeClaw(int timeout) throws InterruptedException {
+    public void closeClaw(int timeout) {
         clawPosition = LlamaBot.CLAW_CLOSE;
         claw.setPosition(clawPosition);
-        Thread.sleep(timeout);
+        if (timeout > 0) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
     public void openClawStep() throws InterruptedException {
@@ -447,14 +465,14 @@ public class SampleMecanumDrive extends MecanumDrive {
             double FORWARD_OFFSET = 4;
             double BETA_ANGLE = 31;
             double d1 = distanceForward.getDistance(DistanceUnit.INCH);
-            double d2 = distanceSide.getDistance(DistanceUnit.INCH);
-            double alphaCos = (Math.pow(d2, 2) + Math.pow(D, 2) - Math.pow(d1, 2)) / (2 * (d2) * D);
-            double alphaAngle = Math.acos(alphaCos); //degrees
-            double gammaAngle = alphaAngle - BETA_ANGLE;
-            double left = d2 * Math.cos(gammaAngle) - LEFT_OFFSET;
-            double forward = d2 * Math.sin(gammaAngle) - FORWARD_OFFSET;
-            vals[0] = left;
-            vals[1] = forward;
+//            double d2 = distanceSide.getDistance(DistanceUnit.INCH);
+//            double alphaCos = (Math.pow(d2, 2) + Math.pow(D, 2) - Math.pow(d1, 2)) / (2 * (d2) * D);
+//            double alphaAngle = Math.acos(alphaCos); //degrees
+//            double gammaAngle = alphaAngle - BETA_ANGLE;
+//            double left = d2 * Math.cos(gammaAngle) - LEFT_OFFSET;
+//            double forward = d2 * Math.sin(gammaAngle) - FORWARD_OFFSET;
+            vals[0] = 0;//left;
+            vals[1] = 0;//forward;
 
             return vals;
         }
