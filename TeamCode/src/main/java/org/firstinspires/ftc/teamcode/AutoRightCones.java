@@ -111,8 +111,9 @@ public class AutoRightCones extends LinearOpMode {
         int targetPosition = 2;
 
         // Try to read sleeve position
+        int count = 0;
         while (!isStarted()) {//opModeIsActive() && count < 4) {
-//            ++count;
+            ++count;
             if (tfod == null) {
                 // Initialization failed
                 break;
@@ -121,10 +122,13 @@ public class AutoRightCones extends LinearOpMode {
                 // the last time that call was made.
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions == null) {
-                    continue;
+                    telemetry.addLine("no recognitions - null");
+                    targetPosition = 2;
                 } else if (updatedRecognitions.size() == 0) {
-                    continue;
+                    telemetry.addLine("no recognitions - 0");
+                    targetPosition = 2;
                 } else {
+                    telemetry.addData("recognitions", updatedRecognitions.size());
                     // step through the list of recognitions and display image position/size information for each one
                     // Note: "Image number" refers to the randomized image orientation/number
                     float confidence = 0;
@@ -143,16 +147,17 @@ public class AutoRightCones extends LinearOpMode {
                     } else if (label.equals("3")) {
                         targetPosition = 3;
                     }
-                    telemetry.addData("Ready to start...  ", targetPosition);
-                    telemetry.update();
                 }
+                telemetry.addData("Ready to start...  ", targetPosition);
+                telemetry.addData("count...  ", count);
+                telemetry.update();
             }
         }
 
         if (isStopRequested()) return;
 
         // Pick cone to driving height
-        drive.closeClaw(50);
+        drive.closeClaw(100);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
         drive.followTrajectory(moveToLowPole1);
         drive.openClaw(100);
@@ -171,6 +176,7 @@ public class AutoRightCones extends LinearOpMode {
         drive.closeClaw(200);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
         sleep(200);
+        // Go to high pole
         Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-26.5, 7, Math.toRadians(270)), Math.toRadians(270),
@@ -178,8 +184,11 @@ public class AutoRightCones extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                                 .build();
         drive.followTrajectory(t4);
+
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
         drive.openClaw(150);
+
+        // go to check positiom
         Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-25.5, 8.75, Math.toRadians(270)), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
@@ -187,22 +196,28 @@ public class AutoRightCones extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
                 .build();
         drive.followTrajectory(t5);
+
 //        posChanged = updatePosition(drive);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
+        // go to cone stack
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate(), Math.toRadians(190))
                 .splineToSplineHeading(new Pose2d(-64, 10, Math.toRadians(180)), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         drive.followTrajectory(t6);
+
         drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DRIVE, 1.0, false, this);
         sleep(200);
+
+        // go to medium pole
         Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-36, 12, Math.toRadians(90)), Math.toRadians(25))
                 .splineToConstantHeading(new Vector2d(-25.5, 21.25), Math.toRadians(90))
                 .build();
         drive.followTrajectory(t7);
+
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
         drive.openClaw(150);
 
