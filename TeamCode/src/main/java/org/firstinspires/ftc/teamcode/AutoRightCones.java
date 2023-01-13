@@ -188,7 +188,7 @@ public class AutoRightCones extends LinearOpMode {
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
         drive.openClaw(150);
 
-        // go to check positiom
+        // go to check position
         Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-25.5, 8.75, Math.toRadians(270)), Math.toRadians(90))
 //                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
