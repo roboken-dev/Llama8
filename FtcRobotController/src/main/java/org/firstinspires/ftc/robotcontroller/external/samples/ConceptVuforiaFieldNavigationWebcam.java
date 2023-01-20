@@ -161,7 +161,7 @@ public class ConceptVuforiaFieldNavigationWebcam extends LinearOpMode {
          */
 
         // Name and locate each trackable object
-        identifyTarget(0, "Red Audience Wall",   -halfField,  -oneAndHalfTile, mmTargetHeight, 90, 0,  90);
+        identifyTarget(0, "Red Audience Wall",   -halfField,  oneAndHalfTile, mmTargetHeight, 90, 0,  90);
         identifyTarget(1, "Red Rear Wall",        halfField,  -oneAndHalfTile, mmTargetHeight, 90, 0, -90);
         identifyTarget(2, "Blue Audience Wall",  -halfField,   oneAndHalfTile, mmTargetHeight, 90, 0,  90);
         identifyTarget(3, "Blue Rear Wall",       halfField,   oneAndHalfTile, mmTargetHeight, 90, 0, -90);

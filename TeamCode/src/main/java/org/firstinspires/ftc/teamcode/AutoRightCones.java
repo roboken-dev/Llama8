@@ -77,7 +77,7 @@ public class AutoRightCones extends LinearOpMode {
         initTfod();
 
         Trajectory t0 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-24.5, 55.5))
+                .lineTo(new Vector2d(-24.5, 55))
                 .build();
         Trajectory t1 = drive.trajectoryBuilder(t0.end())
                 .lineTo(new Vector2d(-24.5, 63))
@@ -93,6 +93,9 @@ public class AutoRightCones extends LinearOpMode {
         // target position, we assume 3 if something fails...
         int targetPosition = 2;
 
+        // Close claw on cone
+        drive.closeClaw(400);
+
         // Try to read sleeve position
         int count = 0;
         while (!isStarted()) {
@@ -104,7 +107,7 @@ public class AutoRightCones extends LinearOpMode {
 
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            List<Recognition> updatedRecognitions = tfod.getRecognitions();
             if (updatedRecognitions == null) {
                 telemetry.addLine("no recognitions - null");
                 targetPosition = 2;
@@ -138,9 +141,9 @@ public class AutoRightCones extends LinearOpMode {
 
         // Need this in case tfod==null
         waitForStart();
+        if (isStopRequested()) return;
 
         // Pick cone to driving height
-        drive.closeClaw(100);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
 
         // Move to low pole and drop cone
@@ -156,13 +159,12 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectory(t2);
         if (isStopRequested()) return;
 
-        // Skipping updatePosition for now
-        // boolean posChanged = updatePosition(drive);
+        boolean posChanged = updatePosition(drive);
 
         // Move to cone pile and pick up cone
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(-64, 10), Math.toRadians(180))
+                .splineTo(new Vector2d(-64, 11), Math.toRadians(180))
                 .build();
         drive.followTrajectorySequence(t3);
         if (isStopRequested()) return;
@@ -173,7 +175,7 @@ public class AutoRightCones extends LinearOpMode {
         // Go to high pole and drop cone
         Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(-26.5, 7, Math.toRadians(270)), Math.toRadians(270),
+                .splineToSplineHeading(new Pose2d(-26, 6.5, Math.toRadians(270)), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                                 .build();
@@ -190,15 +192,14 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectory(t5);
         if (isStopRequested()) return;
 
-        // Skipping updatePosition for now
-        // boolean posChanged = updatePosition(drive);
+        posChanged = updatePosition(drive);
 
         // Lower arm to pick 2nd cone from pile
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
 
         // Move to cone pile and pick up 2nd cone
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate(), Math.toRadians(190))
-                .splineToSplineHeading(new Pose2d(-64, 10, Math.toRadians(180)), Math.toRadians(180),
+                .splineToSplineHeading(new Pose2d(-64, 9, Math.toRadians(180)), Math.toRadians(180),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -211,7 +212,7 @@ public class AutoRightCones extends LinearOpMode {
         // Move to medium pole and drop cone
         Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-36, 12, Math.toRadians(90)), Math.toRadians(25))
-                .splineToConstantHeading(new Vector2d(-25.5, 21.25), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-25.25, 19), Math.toRadians(90))
                 .build();
         drive.followTrajectory(t7);
         if (isStopRequested()) return;
@@ -222,7 +223,7 @@ public class AutoRightCones extends LinearOpMode {
         Trajectory t8;
         if (targetPosition == 1) {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                    .splineToConstantHeading(new Vector2d(-11,15), Math.toRadians(0))
+                    .splineToConstantHeading(new Vector2d(-12,15), Math.toRadians(0))
                     .build();
         } else if (targetPosition == 2) {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
@@ -230,7 +231,7 @@ public class AutoRightCones extends LinearOpMode {
                     .build();
         } else {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(280))
-                    .splineToLinearHeading(new Pose2d(-60.50, 13, Math.toRadians(180)), Math.toRadians(180))
+                    .splineToLinearHeading(new Pose2d(-60.50, 11.5, Math.toRadians(180)), Math.toRadians(180))
                     .build();
         }
         drive.followTrajectory(t8);
@@ -262,17 +263,17 @@ public class AutoRightCones extends LinearOpMode {
 
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-//        targets = this.vuforia.loadTrackablesFromAsset("PowerPlay");
+        targets = this.vuforia.loadTrackablesFromAsset("PowerPlay");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
-//        allTrackables.addAll(targets);
-/*
+        allTrackables.addAll(targets);
+
         // Name and locate each trackable object
-        identifyTarget(0, "Red Audience Wall", -halfField, -oneAndHalfTile, mmTargetHeight, 90, 0, 90);
+        identifyTarget(0, "Red Audience Wall", -halfField, oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(1, "Red Rear Wall", halfField, -oneAndHalfTile, mmTargetHeight, 90, 0, -90);
         identifyTarget(2, "Blue Audience Wall", -halfField, oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(3, "Blue Rear Wall", halfField, oneAndHalfTile, mmTargetHeight, 90, 0, -90);
-*/
+
         /*
          * Create a transformation matrix describing where the camera is on the robot.
          *
@@ -292,7 +293,7 @@ public class AutoRightCones extends LinearOpMode {
          * Finally the camera can be translated to its actual mounting position on the robot.
          *      In this example, it is centered on the robot (left-to-right and front-to-back), and 6 inches above ground level.
          */
-/*
+
         final float CAMERA_FORWARD_DISPLACEMENT  = 2.25f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
         final float CAMERA_VERTICAL_DISPLACEMENT = 7.25f * mmPerInch;   // eg: Camera is 6 Inches above ground
         final float CAMERA_LEFT_DISPLACEMENT     = -5.375f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
@@ -300,23 +301,17 @@ public class AutoRightCones extends LinearOpMode {
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XZY, DEGREES, 90, 90, 0));
-*/
+
         /**  Let all the trackable listeners know where the camera is.  */
-/*        for (VuforiaTrackable trackable : allTrackables) {
+        for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setCameraLocationOnRobot(parameters.cameraName, cameraLocationOnRobot);
         }
-        */
     }
 
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
     private void initTfod() {
-        /*
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-         */
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters();
         tfodParameters.minResultConfidence = 0.5f;
         tfodParameters.isModelTensorFlow2 = true;
@@ -338,6 +333,7 @@ public class AutoRightCones extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
+            tfod.setClippingMargins(230, 150, 230, 150);
             tfod.setZoom(1.0, 16.0 / 9.0);
         }
     }
@@ -355,8 +351,8 @@ public class AutoRightCones extends LinearOpMode {
         aTarget.setLocation(OpenGLMatrix.translation(dx, dy, dz)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, rx, ry, rz)));
     }
-/*
-    void updatePosition(SampleMecanumDrive drive) {
+
+    boolean updatePosition(SampleMecanumDrive drive) {
         boolean targetVisible = false;
         Pose2d newPose = null;
 
@@ -406,8 +402,8 @@ public class AutoRightCones extends LinearOpMode {
             drive.setPoseEstimate(newPose);
             telemetry.addData("New Pose Estimate", drive.getPoseEstimate());
             telemetry.update();
+            return true;
         }
+        return false;
     }
-
- */
 }

@@ -2,21 +2,26 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XZY;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
@@ -71,26 +76,10 @@ public class AutoLeftCones extends LinearOpMode {
         initVuforia();
         initTfod();
 
-        /**
-         * Activate TensorFlow Object Detection before we wait for the start command.
-         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
-         **/
-        if (tfod != null) {
-            tfod.activate();
-
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can increase the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 16/9).
-            tfod.setZoom(1.0, 16.0 / 9.0);
-        }
-
-        Trajectory moveToLowPole1 = drive.trajectoryBuilder(startPose)
+        Trajectory t0 = drive.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(23.5, 55.5))
                 .build();
-        Trajectory t1 = drive.trajectoryBuilder(moveToLowPole1.end())
+        Trajectory t1 = drive.trajectoryBuilder(t0.end())
                 .lineTo(new Vector2d(23.5, 63))
                 .build();
         Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(210))
@@ -99,74 +88,91 @@ public class AutoLeftCones extends LinearOpMode {
 //                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
                 .splineToSplineHeading(new Pose2d(35.5, 12, Math.toRadians(10)), Math.toRadians(10))
                 .build();
-        telemetry.addLine("Ready to start...");
+        telemetry.addLine("Looking for target position");
         telemetry.update();
 
         // target position, we assume 3 if something fails...
         int targetPosition = 2;
 
         // Try to read sleeve position
-        while (!isStarted()) {//opModeIsActive() && count < 4) {
-//            ++count;
+        int count = 0;
+        while (!isStarted()) {
+            ++count;
             if (tfod == null) {
-                // Initialization failed
+                // Initialization failed, we cannot use camera, just continue with default targetPosition
                 break;
+            }
+
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getRecognitions();
+            if (updatedRecognitions == null) {
+                telemetry.addLine("no recognitions - null");
+                targetPosition = 2;
+            } else if (updatedRecognitions.size() == 0) {
+                telemetry.addLine("no recognitions - 0");
+                targetPosition = 2;
             } else {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions == null) {
-                    targetPosition = 2;
-                } else if (updatedRecognitions.size() == 0) {
-                    targetPosition = 2;
-                } else {
-                    // step through the list of recognitions and display image position/size information for each one
-                    // Note: "Image number" refers to the randomized image orientation/number
-                    float confidence = 0;
-                    String label = "";
-                    for (Recognition recognition : updatedRecognitions) {
-                        float c = recognition.getConfidence();
-                        if (c > confidence) {
-                            confidence = c;
-                            label = recognition.getLabel();
-                        }
-                    }
-                    if (label.equals("1")) {
-                        targetPosition = 1;
-                    } else if (label.equals("2")) {
-                        targetPosition = 2;
-                    } else if (label.equals("3")) {
-                        targetPosition = 3;
+                telemetry.addData("recognitions", updatedRecognitions.size());
+                // step through the list of recognitions and display image position/size information for each one
+                // Note: "Image number" refers to the randomized image orientation/number
+                Recognition selected = null;
+                for (Recognition recognition : updatedRecognitions) {
+                    if (selected == null || recognition.getConfidence() > selected.getConfidence()) {
+                        selected = recognition;
                     }
                 }
-                telemetry.addData("Ready to start...  ", targetPosition);
-                telemetry.update();
+                String label = selected.getLabel();
+                if (label.equals("1")) {
+                    targetPosition = 1;
+                } else if (label.equals("2")) {
+                    targetPosition = 2;
+                } else if (label.equals("3")) {
+                    targetPosition = 3;
+                }
             }
+            telemetry.addData("targetPosition", targetPosition);
+            telemetry.addData("count", count);
+            telemetry.addLine("Ready to start...");
+            telemetry.update();
         }
 
+        // Need this in case tfod==null
+        waitForStart();
         if (isStopRequested()) return;
 
         // Pick cone to driving height
-        drive.closeClaw(50);
+        drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
-        drive.followTrajectory(moveToLowPole1);
+
+        // Move to low pole and drop cone
+        drive.followTrajectory(t0);
+        if (isStopRequested()) return;
         drive.openClaw(100);
+
+        // Move backwards, lower arm, and move to check position
         drive.followTrajectory(t1);
-        telemetry.addLine("Moved backward");
+        if (isStopRequested()) return;
+
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
         drive.followTrajectory(t2);
-//37,12.5 | 36, 12.7
-//        boolean posChanged = updatePosition(drive);
+        if (isStopRequested()) return;
 
+        // Skipping updatePosition for now
+        boolean posChanged = updatePosition(drive);
+
+        // Move to cone pile and pick up cone
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
                 .splineTo(new Vector2d(64, 14), Math.toRadians(0))
                 .build();
         drive.followTrajectorySequence(t3);
+        if (isStopRequested()) return;
         drive.closeClaw(200);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
         sleep(200);
-        // Go to high pole
+
+        // Go to high pole and drop cone
         Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(180))
                 .splineToConstantHeading(new Vector2d(40, 13), Math.toRadians(180))
                 .splineToSplineHeading(new Pose2d(24.5, 7, Math.toRadians(270)), Math.toRadians(270),
@@ -174,45 +180,45 @@ public class AutoLeftCones extends LinearOpMode {
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                                 .build();
         drive.followTrajectory(t4);
-
+        if (isStopRequested()) return;
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
         drive.openClaw(150);
 
-        // go to check positiom
-        //continue updating left from here!!!!!!!!!!!!
+        // Move to check position
         Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
-//                .splineToSplineHeading(new Pose2d(-25.5, 8.75, Math.toRadians(270)), Math.toRadians(90))
-//                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
                 .splineToSplineHeading(new Pose2d(35.5, 12, Math.toRadians(10)), Math.toRadians(10))
                 .build();
         drive.followTrajectory(t5);
+        if (isStopRequested()) return;
 
-//        posChanged = updatePosition(drive);
+        posChanged = updatePosition(drive);
+
+        // Lower arm to pick 2nd cone from pile
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
-        // go to cone stack
+
+        // Move to cone pile and pick up 2nd cone
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .splineTo(new Vector2d(64, 14), Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         drive.followTrajectory(t6);
-
+        if (isStopRequested()) return;
         drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DRIVE, 1.0, false, this);
         sleep(200);
 
-        // go to medium pole
+        // Move to medium pole and drop cone
         Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(180))
                 .splineToSplineHeading(new Pose2d(28.5, 12, Math.toRadians(90)), Math.toRadians(180))
                 .splineToConstantHeading(new Vector2d(25.5, 21.25), Math.toRadians(90))
                 .build();
         drive.followTrajectory(t7);
-
+        if (isStopRequested()) return;
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
         drive.openClaw(150);
 
-//        drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, false, this);
-        // Move to end location
+        // Move to targetPosition
         Trajectory t8;
         if (targetPosition == 1) {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(260))
@@ -229,176 +235,8 @@ public class AutoLeftCones extends LinearOpMode {
                     .build();
         }
         drive.followTrajectory(t8);
+        if (isStopRequested()) return;
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, false, this);
-        return;
-/*
-        // Move to drop cone position
-        double TARGET_DISTANCE = 5;
-        double distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        double forwardDrive = distance - TARGET_DISTANCE;
-        if (forwardDrive > 5) {
-            forwardDrive = 5;
-        } else if (forwardDrive < -5) {
-            forwardDrive = -2;
-        }
-
-        TrajectorySequence moveToDropCone = drive.trajectorySequenceBuilder(moveToLowPole1.end())
-                .setVelConstraint(new MecanumVelocityConstraint(15, DriveConstants.TRACK_WIDTH))
-                .forward(forwardDrive)
-                .build();
-        drive.followTrajectorySequence(moveToDropCone);
-
-        telemetry.addLine("About to drop cone");
-        telemetry.update();
-
-        // Drop Cone
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DROP, 0.5, this);
-        drive.openClaw(200);
-
-        telemetry.addLine("Cone dropped, building next trajectory");
-        telemetry.update();
-
-        // Move to cones pile
-        Trajectory moveToPile = drive.trajectoryBuilder(moveToDropCone.end())
-                .splineToConstantHeading(new Vector2d(-22, 59), Math.toRadians(60))
-                .splineToConstantHeading(new Vector2d(-12, 48), Math.toRadians(285))
-                .splineTo(new Vector2d(-11, 22.5), Math.toRadians(255))
-                .splineTo(new Vector2d(-36, 11), Math.toRadians(160))
-                .build();
-
-        telemetry.addLine("Trajectory built, executing");
-        telemetry.update();
-        drive.followTrajectory(moveToPile);
-
-        telemetry.addLine("Looking for image");
-        telemetry.update();
-
-        updatePosition();
-
-        // Move to cone pick up position
-        TARGET_DISTANCE = 5;
-        distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        forwardDrive = distance - TARGET_DISTANCE;
-        if (forwardDrive > 5) {
-            forwardDrive = 5;
-        } else if (forwardDrive < -5) {
-            forwardDrive = -2;
-        }
-        telemetry.addData("distance", distance);
-        telemetry.update();
-        sleep(10000);
-        TrajectorySequence moveToPickCone = drive.trajectorySequenceBuilder(moveToPile.end())
-                .setVelConstraint(slowVelocity)
-                .forward(forwardDrive)
-                .build();
-        drive.followTrajectorySequence(moveToPickCone);
-
-        // Pick up cone
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 0.7, this);
-        drive.closeClaw(500);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 0.7, this);
-
-        // Move to high pole
-        Trajectory moveToHighPole = drive.trajectoryBuilder(moveToPickCone.end())
-                .splineToSplineHeading(new Pose2d(-25.25, 7, Math.toRadians(0)), Math.toRadians(270))
-                .build();
-        drive.followTrajectory(moveToHighPole);
-
-        // Move to drop cone position
-        TARGET_DISTANCE = 11;
-        distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        forwardDrive = distance - TARGET_DISTANCE;
-        telemetry.addData("distance", distance);
-        telemetry.update();
-        sleep(2000);
-        if (forwardDrive > 5) {
-            forwardDrive = 5;
-        } else if (forwardDrive < -5) {
-            forwardDrive = -2;
-        }
-        TrajectorySequence moveToDropCone2 = drive.trajectorySequenceBuilder(moveToHighPole.end())
-                .setVelConstraint(slowVelocity)
-                .forward(forwardDrive)
-                .build();
-        drive.followTrajectorySequence(moveToDropCone2);
-
-        // Drop cone
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.3, this);
-        drive.openClaw(500);
-
-        // Move to cone pile
-        Trajectory moveToPile2 = drive.trajectoryBuilder(moveToDropCone2.end())
-                .splineTo(new Vector2d(-28, 16), Math.toRadians(135))
-//                .splineToSplineHeading(new Pose2d(-56, 11.25, Math.toRadians(180)), Math.toRadians(180))
-                .splineTo(new Vector2d(-56, 11.25), Math.toRadians(180))
-                .build();
-        drive.followTrajectory(moveToPile2);
-
-        // Move to cone pick up position
-        TARGET_DISTANCE = 11;
-        distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        forwardDrive = distance - TARGET_DISTANCE;
-        if (forwardDrive > 5) {
-            forwardDrive = 5;
-        } else if (forwardDrive < -5) {
-            forwardDrive = -2;
-        }
-        TrajectorySequence moveToPickCone2 = drive.trajectorySequenceBuilder(moveToPile2.end())
-                .setVelConstraint(slowVelocity)
-                .forward(forwardDrive)
-                .build();
-        drive.followTrajectorySequence(moveToPickCone2);
-
-        // Pick up cone
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 0.7, this);
-        drive.closeClaw(500);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 0.7, this);
-
-        // Move to low pole #2
-        Trajectory moveToLowPole2 = drive.trajectoryBuilder(moveToPickCone2.end())
-                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(0)), Math.toRadians(90))
-                .build();
-        drive.followTrajectory(moveToLowPole2);
-
-        // Move to drop cone position
-        TARGET_DISTANCE = 11;
-        distance = drive.distanceForward.getDistance(DistanceUnit.INCH);
-        forwardDrive = distance - TARGET_DISTANCE;
-        if (forwardDrive > 5) {
-            forwardDrive = 5;
-        } else if (forwardDrive < -5) {
-            forwardDrive = -2;
-        }
-        TrajectorySequence moveToDropCone3 = drive.trajectorySequenceBuilder(moveToLowPole2.end())
-                .setVelConstraint(slowVelocity)
-                .forward(forwardDrive)
-                .build();
-        drive.followTrajectorySequence(moveToDropCone3);
-
-        // Drop cone
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DROP, 0.3, this);
-        drive.openClaw(500);
-
-        // Move to end location
-        TrajectorySequence moveToFinalPos;
-        if (targetPosition == 1) {
-            moveToFinalPos = drive.trajectorySequenceBuilder(moveToDropCone3.end())
-                    .splineToConstantHeading(new Vector2d(-12, 10), Math.toRadians(5))
-                    .build();
-        } else if (targetPosition == 2) {
-            moveToFinalPos = drive.trajectorySequenceBuilder(moveToDropCone3.end())
-                    .splineToConstantHeading(new Vector2d(-36, 10), Math.toRadians(30))
-                    .build();
-        } else {
-            moveToFinalPos = drive.trajectorySequenceBuilder(moveToDropCone3.end())
-                    .splineToConstantHeading(new Vector2d(-60, 10), Math.toRadians(180))
-                    .build();
-
-        }
-        drive.followTrajectorySequence(moveToFinalPos);
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, this);
-        drive.closeClaw(500);
- */
     }
 
     /**
@@ -425,17 +263,17 @@ public class AutoLeftCones extends LinearOpMode {
 
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-//        targets = this.vuforia.loadTrackablesFromAsset("PowerPlay");
+        targets = this.vuforia.loadTrackablesFromAsset("PowerPlay");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
-//        allTrackables.addAll(targets);
-/*
+        allTrackables.addAll(targets);
+
         // Name and locate each trackable object
         identifyTarget(0, "Red Audience Wall", -halfField, -oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(1, "Red Rear Wall", halfField, -oneAndHalfTile, mmTargetHeight, 90, 0, -90);
         identifyTarget(2, "Blue Audience Wall", -halfField, oneAndHalfTile, mmTargetHeight, 90, 0, 90);
         identifyTarget(3, "Blue Rear Wall", halfField, oneAndHalfTile, mmTargetHeight, 90, 0, -90);
-*/
+
         /*
          * Create a transformation matrix describing where the camera is on the robot.
          *
@@ -455,7 +293,7 @@ public class AutoLeftCones extends LinearOpMode {
          * Finally the camera can be translated to its actual mounting position on the robot.
          *      In this example, it is centered on the robot (left-to-right and front-to-back), and 6 inches above ground level.
          */
-/*
+
         final float CAMERA_FORWARD_DISPLACEMENT  = 2.25f * mmPerInch;   // eg: Enter the forward distance from the center of the robot to the camera lens
         final float CAMERA_VERTICAL_DISPLACEMENT = 7.25f * mmPerInch;   // eg: Camera is 6 Inches above ground
         final float CAMERA_LEFT_DISPLACEMENT     = -5.375f * mmPerInch;   // eg: Enter the left distance from the center of the robot to the camera lens
@@ -463,23 +301,17 @@ public class AutoLeftCones extends LinearOpMode {
         OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XZY, DEGREES, 90, 90, 0));
-*/
+
         /**  Let all the trackable listeners know where the camera is.  */
-/*        for (VuforiaTrackable trackable : allTrackables) {
+        for (VuforiaTrackable trackable : allTrackables) {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setCameraLocationOnRobot(parameters.cameraName, cameraLocationOnRobot);
         }
-        */
     }
 
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
     private void initTfod() {
-        /*
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-         */
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters();
         tfodParameters.minResultConfidence = 0.5f;
         tfodParameters.isModelTensorFlow2 = true;
@@ -487,6 +319,23 @@ public class AutoLeftCones extends LinearOpMode {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
 
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+
+        /**
+         * Activate TensorFlow Object Detection before we wait for the start command.
+         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
+         **/
+        if (tfod != null) {
+            tfod.activate();
+
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can increase the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 16/9).
+            tfod.setClippingMargins(230, 150, 230, 150);
+            tfod.setZoom(1.0, 16.0 / 9.0);
+        }
     }
 
     /***
@@ -502,8 +351,8 @@ public class AutoLeftCones extends LinearOpMode {
         aTarget.setLocation(OpenGLMatrix.translation(dx, dy, dz)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, rx, ry, rz)));
     }
-/*
-    void updatePosition(SampleMecanumDrive drive) {
+
+    boolean updatePosition(SampleMecanumDrive drive) {
         boolean targetVisible = false;
         Pose2d newPose = null;
 
@@ -553,8 +402,8 @@ public class AutoLeftCones extends LinearOpMode {
             drive.setPoseEstimate(newPose);
             telemetry.addData("New Pose Estimate", drive.getPoseEstimate());
             telemetry.update();
+            return true;
         }
+        return false;
     }
-
- */
 }
