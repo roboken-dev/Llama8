@@ -85,7 +85,6 @@ public class AutoLeftCones extends LinearOpMode {
         Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(210))
                 .splineToSplineHeading(new Pose2d(12, 48, Math.toRadians(270)), Math.toRadians(270))
                 .splineToSplineHeading(new Pose2d(12, 24, Math.toRadians(270)), Math.toRadians(270))
-//                .splineToSplineHeading(new Pose2d(-48, 12, Math.toRadians(160)), Math.toRadians(160))
                 .splineToSplineHeading(new Pose2d(35.5, 12, Math.toRadians(10)), Math.toRadians(10))
                 .build();
         telemetry.addLine("Looking for target position");
@@ -148,7 +147,7 @@ public class AutoLeftCones extends LinearOpMode {
         // Move to low pole and drop cone
         drive.followTrajectory(t0);
         if (isStopRequested()) return;
-        drive.openClaw(100);
+        drive.openClaw(200);
 
         // Move backwards, lower arm, and move to check position
         drive.followTrajectory(t1);
@@ -158,24 +157,23 @@ public class AutoLeftCones extends LinearOpMode {
         drive.followTrajectory(t2);
         if (isStopRequested()) return;
 
-        // Skipping updatePosition for now
         boolean posChanged = updatePosition(drive);
 
         // Move to cone pile and pick up cone
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(64, 14), Math.toRadians(0))
+                .splineTo(new Vector2d(64, 12), Math.toRadians(0))
                 .build();
         drive.followTrajectorySequence(t3);
         if (isStopRequested()) return;
-        drive.closeClaw(200);
+        drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
         sleep(200);
 
         // Go to high pole and drop cone
         Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(180))
                 .splineToConstantHeading(new Vector2d(40, 13), Math.toRadians(180))
-                .splineToSplineHeading(new Pose2d(24.5, 7, Math.toRadians(270)), Math.toRadians(270),
+                .splineToSplineHeading(new Pose2d(25.25, 6.25, Math.toRadians(270)), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                                 .build();
@@ -198,7 +196,7 @@ public class AutoLeftCones extends LinearOpMode {
 
         // Move to cone pile and pick up 2nd cone
         Trajectory t6 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .splineTo(new Vector2d(64, 14), Math.toRadians(0),
+                .splineTo(new Vector2d(63.5, 12), Math.toRadians(0),
                         SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -211,7 +209,7 @@ public class AutoLeftCones extends LinearOpMode {
         // Move to medium pole and drop cone
         Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(180))
                 .splineToSplineHeading(new Pose2d(28.5, 12, Math.toRadians(90)), Math.toRadians(180))
-                .splineToConstantHeading(new Vector2d(25.5, 21.25), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(31, 20.75), Math.toRadians(90))
                 .build();
         drive.followTrajectory(t7);
         if (isStopRequested()) return;
@@ -222,21 +220,22 @@ public class AutoLeftCones extends LinearOpMode {
         Trajectory t8;
         if (targetPosition == 1) {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(260))
-                    .splineToLinearHeading(new Pose2d(37, 10.5, Math.toRadians(0)), Math.toRadians(0))
-                    .splineToConstantHeading(new Vector2d(61, 12), Math.toRadians(0))
+                    .splineToConstantHeading(new Vector2d(38, 11.5), Math.toRadians(0))
+                    .splineToSplineHeading(new Pose2d(66, 17, Math.toRadians((0))), Math.toRadians(0))
                     .build();
         } else if (targetPosition == 2) {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                    .splineToConstantHeading(new Vector2d(37, 12), Math.toRadians(180))
+                    .splineToConstantHeading(new Vector2d(37, 14), Math.toRadians(180))
                     .build();
         } else {
             t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                    .splineToConstantHeading(new Vector2d(12.5, 12), Math.toRadians(180))
+                    .splineToConstantHeading(new Vector2d(15.5, 15), Math.toRadians(180))
                     .build();
         }
         drive.followTrajectory(t8);
-        if (isStopRequested()) return;
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, false, this);
+        telemetry.addData("pose", drive.getPoseEstimate());
+        telemetry.update();
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, true, this);
     }
 
     /**

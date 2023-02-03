@@ -86,10 +86,7 @@ public class LlamaBot
     static final double     Arm_Speed               = 0.3;
     static final int        ARM_BOTTOM              = ARM_POSITION_FLOOR;
     static final int        ARM_TOP                 = ARM_POSITION_TOP;
-    static final double
-
-
-            ARM_SPEED               = 0.5;
+    static final double     ARM_SPEED               = 0.75;
     public static final double     CLAW_OPEN               = 0.4;
     public static final double     CLAW_CLOSE              = 0;
     public static final double     CLAW_STEP               = 0.05;
