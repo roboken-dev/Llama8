@@ -159,7 +159,7 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectory(t2);
         if (isStopRequested()) return;
 
-        boolean posChanged = updatePosition(drive);
+        boolean posChanged = false;//updatePosition(drive);
 
         // Move to cone pile and pick up cone
         TrajectorySequence t3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
@@ -175,7 +175,7 @@ public class AutoRightCones extends LinearOpMode {
         // Go to high pole and drop cone
         Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(-26.75, 6.5, Math.toRadians(270)), Math.toRadians(270),
+                .splineToSplineHeading(new Pose2d(-26.75, 7, Math.toRadians(270)), Math.toRadians(270),
                         SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                                 .build();
@@ -192,7 +192,7 @@ public class AutoRightCones extends LinearOpMode {
         drive.followTrajectory(t5);
         if (isStopRequested()) return;
 
-        posChanged = updatePosition(drive);
+        //posChanged = updatePosition(drive);
 
         // Lower arm to pick 2nd cone from pile
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
