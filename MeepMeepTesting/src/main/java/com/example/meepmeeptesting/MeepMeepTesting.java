@@ -23,6 +23,64 @@ public class MeepMeepTesting {
         ProfileAccelerationConstraint slowAccel = new ProfileAccelerationConstraint(MAX_ACCEL);
 
         MeepMeep meepMeep = new MeepMeep(800);
+
+        RoadRunnerBotEntity myBotRight = new DefaultBotBuilder(meepMeep)
+                .setDimensions(14,14)
+                .setDriveTrainType(DriveTrainType.MECANUM)
+                .setConstraints(MAX_VEL, MAX_ACCEL, MAX_ANG_VEL, MAX_ANG_ACCEL, TRACK_WIDTH)
+                .followTrajectorySequence(drive ->
+                        drive.trajectorySequenceBuilder(new Pose2d(-32, 65, Math.toRadians(270)))
+                                //drop pre loaded cone on high pole
+                                .setTangent(Math.toRadians(0))
+                                .splineToConstantHeading(new Vector2d(-10, 28), Math.toRadians(270))
+                               // .splineToConstantHeading(new Vector2d(-26.75, 6.5), Math.toRadians(225))
+
+                                //pick up first cone from pile
+                                .setTangent(Math.toRadians(90))
+                                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                                .splineToSplineHeading(new Pose2d(-64.5, 10, Math.toRadians(180)), Math.toRadians(180),
+                                        slowVelocity, slowAccel)
+
+                                //drop cone on high pole
+                                .setTangent(0)
+                                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-26.75, 6.5, Math.toRadians(270)), Math.toRadians(270),
+                                        slowVelocity, slowAccel)
+
+                                //pick up second cone from pile
+                                .setTangent(Math.toRadians(90))
+                                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                                .splineToSplineHeading(new Pose2d(-64.5, 10, Math.toRadians(180)), Math.toRadians(180),
+                                        slowVelocity, slowAccel)
+
+                                //drop cone on high pole
+                                .setTangent(0)
+                                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-26.75, 6.5, Math.toRadians(270)), Math.toRadians(270),
+                                        slowVelocity, slowAccel)
+
+
+                                //pick up third cone from pile
+                                .setTangent(Math.toRadians(90))
+                                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                                .splineToSplineHeading(new Pose2d(-64.5, 10, Math.toRadians(180)), Math.toRadians(180),
+                                        slowVelocity, slowAccel)
+
+                                //drop cone on medium pole
+                                .setTangent(Math.toRadians(0))
+                                .splineToSplineHeading(new Pose2d(-36, 12, Math.toRadians(90)), Math.toRadians(25))
+                                .splineToConstantHeading(new Vector2d(-25.25, 19), Math.toRadians(90))
+
+                                //park
+                                .setTangent(Math.toRadians(270))
+                                .splineToConstantHeading(new Vector2d(-12, 15), Math.toRadians(0))
+                                .build()
+                );
+
+
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
             .setDimensions(14,14)
             .setDriveTrainType(DriveTrainType.MECANUM)
@@ -30,7 +88,7 @@ public class MeepMeepTesting {
             // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
             .setConstraints(MAX_VEL, MAX_ACCEL, MAX_ANG_VEL, MAX_ANG_ACCEL, TRACK_WIDTH)
             .followTrajectorySequence(drive ->
-                drive.trajectorySequenceBuilder(new Pose2d(40, 65, Math.toRadians(270)))
+                drive.trajectorySequenceBuilder(new Pose2d(-32, 65, Math.toRadians(270)))
                         // t0
                         .lineTo(new Vector2d(23.5, 55.5))
 
@@ -85,7 +143,8 @@ public class MeepMeepTesting {
         meepMeep.setBackground(MeepMeep.Background.FIELD_POWERPLAY_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.85f)
-                .addEntity(myBot)
+                //.addEntity(myBot)
+                .addEntity(myBotRight)
                 .start();
     }
 }
