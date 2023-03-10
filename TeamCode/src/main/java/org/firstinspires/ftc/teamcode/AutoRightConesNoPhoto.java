@@ -48,6 +48,7 @@ public class AutoRightConesNoPhoto extends LinearOpMode {
             "3"
     };
 
+    private static final double SLOW_VELOCITY = 30.0;
     private static final String VUFORIA_KEY =
             "AXKY5gD/////AAABmaGYhDHFr0pZgCyH7lQCCpOIGDOsI8cBMvAUleX7dV8HGflhv2ztkJ2FmwOS9Pa3llYgoZ+qo+fpk+6WEwtLjcDyrEyr5pYjI/zdeCWkxB74tIRqbZJtps6kFgkAJRvOUq9Aoo3O0Ig6VnrFSaKTb/Y2V3kd2K3a6q6TvqJzB53dDyUrcHpTXn7WuIYc9DSSywgDYeQ6bL+SJBDBnF/J6qLZV1ELaUW6bP6ZY6MqtGw2yWnPU6WxgCpeCUFILt6a16Cggy7u3V6hLLvxp8cor0VYhuQqm4dLiR0iXI2FIXLK3zg8KgWpFz1UZKB4xH7deJQjMQCD5xJCJ3u+YBE2J22zVdiFBPAnRPj2sb19nKcP";
 
@@ -83,54 +84,72 @@ public class AutoRightConesNoPhoto extends LinearOpMode {
         // Close claw on cone
         drive.closeClaw(400);
 
-        Trajectory t0 = drive.trajectoryBuilder(startPose)
-                .lineTo(new Vector2d(-24.5, 55))
-                .build();
-        Trajectory t1 = drive.trajectoryBuilder(t0.end())
-                .lineTo(new Vector2d(-24.5, 63))
-                .build();
-        Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(330))
-                .splineToSplineHeading(new Pose2d(-12, 48, Math.toRadians(270)), Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-12, 24, Math.toRadians(270)), Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
-                .build();
-        TrajectorySequence t3 = drive.trajectorySequenceBuilder(t2.end())
-                .setVelConstraint(slowVelocity)
-                .splineTo(new Vector2d(-64, 11.5), Math.toRadians(180))
-                .build();
-        Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(-26.75, 6.5, Math.toRadians(270)), Math.toRadians(270),
-                        SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+        //drop pre loaded cone on high pole
+        Trajectory t0 = drive.trajectoryBuilder(startPose, Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-10, 28), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-26.25, 9.25), Math.toRadians(225),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
+        //pick up first cone from pile
+        Trajectory t1 = drive.trajectoryBuilder(t0.end(), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                .splineToSplineHeading(new Pose2d(-64, 11, Math.toRadians(180)), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        //drop cone on high pole
+        Trajectory t2 = drive.trajectoryBuilder(t1.end(), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-30.25, 7.5, Math.toRadians(270)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        //pick up second cone from pile
+        Trajectory t3 = drive.trajectoryBuilder(t2.end(), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
+                .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
+                .splineToSplineHeading(new Pose2d(-67, 10.75, Math.toRadians(180)), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+        //drop cone on high pole
+        Trajectory t4 = drive.trajectoryBuilder(t3.end(), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-40, 13), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-32.75, 7.5, Math.toRadians(270)), Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+                .build();
+
+        //pick up third cone from pile
         Trajectory t5 = drive.trajectoryBuilder(t4.end(), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(-30.5, 10.5), Math.toRadians(135))
                 .splineToSplineHeading(new Pose2d(-35.5, 12, Math.toRadians(170)), Math.toRadians(170))
-                .build();
-        Trajectory t6 = drive.trajectoryBuilder(t5.end(), Math.toRadians(190))
-                .splineToSplineHeading(new Pose2d(-64.5, 10, Math.toRadians(180)), Math.toRadians(180),
-                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                .splineToSplineHeading(new Pose2d(-70, 8.75, Math.toRadians(180)), Math.toRadians(180),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
-        Trajectory t7 = drive.trajectoryBuilder(t6.end(), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(-36, 12, Math.toRadians(90)), Math.toRadians(25))
-                .splineToConstantHeading(new Vector2d(-25.25, 19), Math.toRadians(90))
+
+        //drop cone on medium pole
+        Trajectory t6 = drive.trajectoryBuilder(t5.end(), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-36, 14, Math.toRadians(90)), Math.toRadians(25))
+                .splineToConstantHeading(new Vector2d(-34.25, 17.5), Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(SLOW_VELOCITY, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
-        Trajectory t8;
-        if (targetPosition == 1) {
-            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                    .splineToConstantHeading(new Vector2d(-12, 15), Math.toRadians(0))
-                    .build();
-        } else if (targetPosition == 2) {
-            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(270))
-                    .splineToConstantHeading(new Vector2d(-35.50, 12.25), Math.toRadians(90))
-                    .build();
-        } else {
-            t8 = drive.trajectoryBuilder(t7.end(), Math.toRadians(280))
-                    .splineToLinearHeading(new Pose2d(-60.5, 12.5, Math.toRadians(180)), Math.toRadians(180))
-                    .build();
-        }
+
+        Trajectory t7_1 = drive.trajectoryBuilder(t6.end(), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-23, 15), Math.toRadians(0))
+                .build();
+        Trajectory t7_2 = drive.trajectoryBuilder(t6.end(), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-47.50, 12.25), Math.toRadians(90))
+                .build();
+        Trajectory t7_3 = drive.trajectoryBuilder(t6.end(), Math.toRadians(280))
+                .splineToLinearHeading(new Pose2d(-70, 12.5, Math.toRadians(180)), Math.toRadians(180))
+                .build();
 
         // Try to read sleeve position
         int count = 0;
@@ -180,23 +199,31 @@ public class AutoRightConesNoPhoto extends LinearOpMode {
         if (isStopRequested()) return;
 
         // Pick cone to driving height
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J2_DRIVE, 1.0, false, this);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
 
-        // Move to low pole and drop cone
+        // Move to high pole and drop preloaded cone
         drive.followTrajectory(t0);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 1, false, this);
         if (isStopRequested()) return;
         drive.openClaw(200);
 
-        // Move backwards, lower arm, and move to check position
+        //Lower arm and move to cone pile and pick up cone
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
         drive.followTrajectory(t1);
         if (isStopRequested()) return;
+        drive.closeClaw(300);
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
+        sleep(200);
 
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK1, 1.0, false, this);
+        // Go to high pole and drop cone
         drive.followTrajectory(t2);
         if (isStopRequested()) return;
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
+        drive.openClaw(150);
 
-        // Move to cone pile and pick up cone
-        drive.followTrajectorySequence(t3);
+        // Lower arm and move to cone pile and pick up 2nd cone
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
+        drive.followTrajectory(t3);
         if (isStopRequested()) return;
         drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DRIVE, 1.0, false, this);
@@ -208,28 +235,28 @@ public class AutoRightConesNoPhoto extends LinearOpMode {
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J4_DROP, 0.5, this);
         drive.openClaw(150);
 
-        // Move to check position
+        // Lower arm and move to cone pile and pick up 3nd cone
+        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK3, 1.0, false, this);
         drive.followTrajectory(t5);
-        if (isStopRequested()) return;
-
-        // Lower arm to pick 2nd cone from pile
-        drive.armMoveToPosition(LlamaBot.ARM_POSITION_CONE_PICK2, 1.0, false, this);
-
-        // Move to cone pile and pick up 2nd cone
-        drive.followTrajectory(t6);
         if (isStopRequested()) return;
         drive.closeClaw(300);
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DRIVE, 1.0, false, this);
         sleep(200);
 
         // Move to medium pole and drop cone
-        drive.followTrajectory(t7);
+        drive.followTrajectory(t6);
         if (isStopRequested()) return;
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_J3_DROP, 0.5, this);
         drive.openClaw(150);
 
         // Move to targetPosition
-        drive.followTrajectory(t8);
+        if (targetPosition == 1) {
+            drive.followTrajectory(t7_1);
+        } else if (targetPosition == 2) {
+            drive.followTrajectory(t7_2);
+        } else {
+            drive.followTrajectory(t7_3);
+        }
         telemetry.addData("pose", drive.getPoseEstimate());
         telemetry.update();
         drive.armMoveToPosition(LlamaBot.ARM_POSITION_FLOOR, 1.0, true, this);
