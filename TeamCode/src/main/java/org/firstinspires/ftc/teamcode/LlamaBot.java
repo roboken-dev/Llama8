@@ -40,19 +40,22 @@ public class LlamaBot
 {
     static final int ARM_POSITION_FLOOR = 0;
     static final int ARM_POSITION_J1_DROP = 420;
-    static final int ARM_POSITION_J1_DRIVE = 510;
-    static final int ARM_POSITION_J2_DROP = 1210;
-    static final int ARM_POSITION_J2_DRIVE = 1310;
-    static final int ARM_POSITION_J3_DROP = 2090;
-    static final int ARM_POSITION_J3_DRIVE = 2240;
-    static final int ARM_POSITION_J4_DROP = 2500;
-    static final int ARM_POSITION_J4_DRIVE = 3000;
+    static final int ARM_POSITION_J1_DRIVE = 480;
+    static final int ARM_POSITION_J2_DROP = 950;
+    static final int ARM_POSITION_J2_DRIVE = 1200;
+    static final int ARM_POSITION_J3_DROP = 1975;
+    static final int ARM_POSITION_J3_DRIVE = 2175;
+    static final int ARM_POSITION_J4_DROP = 2850;
+    static final int ARM_POSITION_J4_DRIVE = 3050;
+    static final int ARM_POSITION_CONE_PICK1 = 440;
+    static final int ARM_POSITION_CONE_PICK2 = 300;
     static final int ARM_POSITION_TOP = 3050;
+
     static final int ELEMENT_THRESHHOLD = 25;
 
-    static final int RED = 1;
-    static final int GREEN = 2;
-    static final int BLUE = 3;
+    public static final int RED = 1;
+    public static final int GREEN = 2;
+    public static final int BLUE = 3;
 
     public DcMotor motorFrontLeft;  // motor1
     public DcMotor motorRearLeft;  // motor 2
@@ -61,8 +64,8 @@ public class LlamaBot
     public Servo claw;
     public DcMotor arm;
     public DistanceSensor distance1;
-    public DistanceSensor distance2;
-    public ColorSensor color;
+//    public DistanceSensor distance2;
+//    public ColorSensor color;
 
 
     private ElapsedTime     runtime = new ElapsedTime();
@@ -83,13 +86,10 @@ public class LlamaBot
     static final double     Arm_Speed               = 0.3;
     static final int        ARM_BOTTOM              = ARM_POSITION_FLOOR;
     static final int        ARM_TOP                 = ARM_POSITION_TOP;
-    static final double
-
-
-            ARM_SPEED               = 0.5;
-    static final double     CLAW_OPEN               = 0.55;
-    static final double     CLAW_CLOSE              = 0.3;
-    static final double     CLAW_STEP               = 0.05;
+    static final double     ARM_SPEED               = 0.75;
+    public static final double     CLAW_OPEN               = 0.4;
+    public static final double     CLAW_CLOSE              = 0;
+    public static final double     CLAW_STEP               = 0.05;
 
 
 
@@ -105,8 +105,8 @@ public class LlamaBot
         arm = hwMap.dcMotor.get("arm");
         claw = hwMap.servo.get("claw");
         distance1 = hwMap.get(DistanceSensor.class, "distance1");
-        distance2 = hwMap.get(DistanceSensor.class, "distance2");
-        color = hwMap.get(ColorSensor.class, "color");
+//        distance2 = hwMap.get(DistanceSensor.class, "distance2");
+//        color = hwMap.get(ColorSensor.class, "color");
 
         // reset to default
         initMotors();
@@ -508,9 +508,9 @@ public class LlamaBot
 
         while (!inPosition) {
             d1 = distance1.getDistance(DistanceUnit.CM);
-            d2 = distance2.getDistance(DistanceUnit.CM);
+//            d2 = distance2.getDistance(DistanceUnit.CM);
             forward = d1 - D1_TARGET;
-            right = d2 - D2_TARGET;
+//            right = d2 - D2_TARGET;
 
             if (!(-ERROR_RANGE <= forward && forward < ERROR_RANGE)) {
                 /*
@@ -525,7 +525,7 @@ public class LlamaBot
                 drivingSpeed = forward > 0 ? SPEED : -SPEED;
                 driveForward(drivingSpeed);
 
-            } else if (!(-ERROR_RANGE <= right && right <= ERROR_RANGE)) {
+            } else if (false /*!(-ERROR_RANGE <= right && right <= ERROR_RANGE)*/) {
 
                 /*
                 if (right > 10) {
@@ -543,7 +543,7 @@ public class LlamaBot
                 driveForward(0);
             }
             opMode.telemetry.addData("distance1", d1);
-            opMode.telemetry.addData("distance2", d2);
+//            opMode.telemetry.addData("distance2", d2);
             opMode.telemetry.addData("drivingSpeed", drivingSpeed);
             opMode.telemetry.addData("strafingSpeed", strafingSpeed);
             opMode.telemetry.addData("inPosition", inPosition);
@@ -555,9 +555,9 @@ public class LlamaBot
 
         float hsvValues[] = {0F, 0F, 0F};
         Color.RGBToHSV(
-                (int) (color.red() * 255 ),
-                (int) (color.green() * 255),
-                (int) (color.blue() * 255),
+                (int) (0/*color.red()*/ * 255),
+                (int) (0/*color.green()*/ * 255),
+                (int) (0/*color.blue()*/ * 255),
                 hsvValues);
         if (hsvValues[0] < 30 || hsvValues[0] > 330) {
             return RED;

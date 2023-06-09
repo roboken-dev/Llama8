@@ -22,14 +22,11 @@ public class Teleop2 extends LinearOpMode {
 /*
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
-
         // values is a reference to the hsvValues array.
         final float values[] = hsvValues;
-
         // sometimes it helps to multiply the raw RGB values with a scale factor
         // to amplify/attentuate the measured values.
         final double SCALE_FACTOR = 255;
-
         // get a reference to the RelativeLayout so we can change the background
         // color of the Robot Controller app to match the hue detected by the RGB sensor.
         int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
@@ -50,7 +47,7 @@ public class Teleop2 extends LinearOpMode {
         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-      //  robot.clawInit(robot.CLAW_CLOSE);
+        //  robot.clawInit(robot.CLAW_CLOSE);
         while (opModeIsActive()) {
 
             double G1rightStickY = gamepad1.right_stick_y;
@@ -112,7 +109,7 @@ public class Teleop2 extends LinearOpMode {
 
 
             if (gamepad2.a) {
-                robot.sensorFindPole(this);
+              //  robot.sensorFindPole(this);
                 telemetry.addData("pole found:", "true");
                 telemetry.update();
             }
@@ -135,13 +132,13 @@ public class Teleop2 extends LinearOpMode {
                 speed_control = 0.5f;
                 telemetry.addData("Status", "Setting Speed to .5");    //
             }
-            if (gamepad1.b){
+            if (gamepad1.b || gamepad1.left_bumper) {
                 robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 robot.motorRearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            if (gamepad1.y){
+            if (gamepad1.y || gamepad1.right_bumper) {
                 robot.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.motorRearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -189,7 +186,7 @@ public class Teleop2 extends LinearOpMode {
 
             telemetry.addData("claw value", robot.clawPosition);
             telemetry.addData("sensor value 1", robot.distance1.getDistance(DistanceUnit.CM));
-            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
+//            telemetry.addData("sensor value 2", robot.distance2.getDistance(DistanceUnit.CM));
             telemetry.addData("right stick x value", G1rightStickX);
             telemetry.addData("right stick y value", G1rightStickY);
 
@@ -203,26 +200,19 @@ public class Teleop2 extends LinearOpMode {
 
 
 /*
-
             if (gamepad2.left_stick_y > 0 || gamepad2.left_stick_y < 0) {
                 robot.arm.setPower(gamepad2.left_stick_y * ArmSpeedControl+0.2);
             }
-
             if (gamepad2.left_stick_y < 0) {
                 robot.arm.setPower(gamepad2.left_stick_y *( ArmSpeedControl));
             }
-
             if (gamepad2.left_stick_y == 0) {
                 robot.arm.setPower(0.0);
-
             }
-
             if (gamepad2.y)
             {
                 ArmSpeedControl = 1.0;
             }
-
-
             if (gamepad2.a)
             {
                 ArmSpeedControl = 0.4;
@@ -231,7 +221,6 @@ public class Teleop2 extends LinearOpMode {
             {
                 ArmSpeedControl = 0.8;
             }
-
             if (G2leftTrigger > 0) {
                 robot.spinner.setPower(0.6);
             } else if (G2rightTrigger > 0) {
@@ -239,14 +228,11 @@ public class Teleop2 extends LinearOpMode {
             } else {
                 robot.spinner.setPower(0);
             }
-
         }
-
         // Set the panel back to the default color
         /*
         relativeLayout.post(new Runnable() {
             public void run() {
                 relativeLayout.setBackgroundColor(Color.WHITE);
             }
-
          */

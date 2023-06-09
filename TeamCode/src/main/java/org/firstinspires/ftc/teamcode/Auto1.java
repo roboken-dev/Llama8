@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Autonomous(name = "rightSide", group = "18051")
 public class Auto1 extends LinearOpMode {
-
     LlamaBot robot = new LlamaBot();
 
     @Override
